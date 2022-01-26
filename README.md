@@ -1,2 +1,2 @@
-# randomharmony
+
 Random harmony generator 
