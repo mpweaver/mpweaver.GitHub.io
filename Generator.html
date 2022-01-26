@@ -7,11 +7,11 @@
 var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 var chords = ['major7', 'minor7', 'sus2', 'sus4', 'dom7'];
 var generateButton = document.createElement('button');
-generateButton.innerHTML = 'Generate';
+generateButton.innerHTML = 'Generate chords';
 document.body.appendChild(generateButton);
-
 var output = document.createElement('div');
-output.innerHTML = '<ul>';
+output.style.fontSize = '200%';
+output.style.marginLeft = '41%';
 document.body.appendChild(output);
 
 generateButton.onclick = function() {
