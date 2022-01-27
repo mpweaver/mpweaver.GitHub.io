@@ -5,7 +5,7 @@
         document.addEventListener("DOMContentLoaded", function() {
 
 var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-var chords = ['major7', 'minor7', 'sus2', 'sus4', 'dom7'];
+var chords = ['major7', 'minor7', 'sus2', 'sus4', 'dom7', 'major6', 'major7b5', 'minor7b5'];
 var generateButton = document.createElement('button');
 generateButton.innerHTML = 'Generate chords';
 document.body.appendChild(generateButton);
@@ -21,7 +21,7 @@ generateButton.onclick = function() {
     randomNotes.push(notes[Math.floor(Math.random() * 12)]);
   }
   for (var i = 0; i < 4; i++) {
-    randomChords.push(chords[Math.floor(Math.random() * 5)]);
+    randomChords.push(chords[Math.floor(Math.random() * 8)]);
   }
   output.innerHTML = '<ul>';
   for (var i = 0; i < 4; i++) {
