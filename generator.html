@@ -7,7 +7,7 @@
 document.body.style.backgroundColor = '#333';
 document.body.style.color = '#fff';       
 var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-var chords = ['major7', 'minor7', 'sus2', 'sus4', 'dom7', 'major6', 'major7b5', 'minor7b5', 'major7#5'];
+var chords = ['major7', 'minor7', 'sus2', 'sus4', 'dom7', 'major6', 'major7b5', 'minor7b5', 'major7#5', 'dim7'];
 var generateButton = document.createElement('button');
 generateButton.innerHTML = 'Generate chords';
 //generatebutton.style.backgroundColor = '#6e00ff';         
@@ -24,7 +24,7 @@ generateButton.onclick = function() {
     randomNotes.push(notes[Math.floor(Math.random() * 12)]);
   }
   for (var i = 0; i < 4; i++) {
-    randomChords.push(chords[Math.floor(Math.random() * 9)]);
+    randomChords.push(chords[Math.floor(Math.random() * 10)]);
   }
   output.innerHTML = '<ul>';
   for (var i = 0; i < 4; i++) {
