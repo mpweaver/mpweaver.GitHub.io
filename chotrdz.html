@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diatonic Harmony Generator</title>
+  <style>
+    body {
+
+      /* code to center the ttitle text */
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        /* Adds some space below the title */
+      }
+
+      font-family: Arial,
+      sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      transition: background-color 0.3s,
+      color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: #333;
+      color: #fff;
+    }
+
+    body.light-mode {
+      background-color: #fff;
+      color: #333;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 5px;
+      margin-right: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode select {
+      background-color: #555;
+      color: #fff;
+      border: 1px solid #777;
+    }
+
+    body.light-mode select {
+      background-color: #f4f4f4;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+
+    .chord-display {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chord-section {
+      width: 48%;
+    }
+
+    .progression,
+    .scale-notes {
+      margin-bottom: 10px;
+    }
+
+    .chord-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 2px;
+    }
+
+    .chord-row {
+      background-color: #444;
+    }
+
+    .chord-cell {
+      padding: 8px;
+    }
+
+    .numeral {
+      font-weight: bold;
+      width: 30px;
+    }
+
+    .chord-name {
+      width: 80px;
+    }
+
+    body.light-mode #metronome {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    body.light-mode .chord-row {
+      background-color: #e0e0e0;
+    }
+
+    body.light-mode #toggleButton {
+      background-color: #4CAF50;
+      color: black;
+    }
+
+    /* Add this to your existing CSS */
+    body.light-mode #metronome label,
+    body.light-mode #metronome span {
+      color: #333;
+    }
+
+    padding-bottom: 100px;
+
+    #metronome {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #555;
+      padding: 10px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      font-size: 0.8em;
+      z-index: 1000;
+    }
+
+    #toggleButton {
+      width: 100%;
+      padding: 10px 15px;
+      font-size: 1.2em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    #toggleButton:hover {
+      background-color: #45a049;
+    }
+
+    #metronome .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #metronome .control-group {
+      flex: 1 1 calc(50% - 5px);
+      display: flex;
+      align-items: center;
+    }
+
+    #metronome label {
+      width: 60px;
+      color: white;
+      margin-right: 10px;
+    }
+
+    #metronome input[type="range"],
+    #metronome select {
+      flex: 1;
+      width: 100%;
+    }
+
+    #metronome #bpmValue,
+    #metronome #volumeValue {
+      width: 40px;
+      text-align: right;
+      color: white;
+    }
+
+    <style>
+  </style>
+
+</head>
+
+<body class="dark-mode">
+
+  <h1>Diatonic Harmony Generator</h1>
+
+  <div class="controls">
+    <select id="primaryKeySelect"></select>
+    <select id="primaryScaleSelect"></select>
+    <select id="primaryVoicingSelect"></select>
+    <select id="progressionSelect"></select>
+    <select id="parallelKeySelect"></select>
+    <select id="parallelScaleSelect"></select>
+    <select id="parallelVoicingSelect"></select>
+    <select id="themeSelect">
+      <option value="dark">Dark Mode</option>
+      <option value="light">Light Mode</option>
+    </select>
+  </div>
+  <div class="chord-display">
+    <div class="chord-section">
+      <h2>Primary Chords:</h2>
+      <div id="primaryProgression" class="progression"></div>
+      <div id="primaryScaleNotes" class="scale-notes"></div>
+      <div id="primaryScaleName" class="scale-name"></div>
+      <div id="primaryOutput"></div>
+    </div>
+    <div class="chord-section">
+      <h2>Parallel Chords:</h2>
+      <div id="parallelProgression" class="progression"></div>
+      <div id="parallelScaleNotes" class="scale-notes"></div>
+      <div id="parallelScaleName" class="scale-name"></div>
+      <div id="parallelOutput"></div>
+    </div>
+  </div>
+  <div id="metronome">
+    <button id="toggleButton">Start</button>
+    <div class="controls">
+      <div class="control-group">
+        <label for="bpm">BPM:</label>
+        <input type="range" id="bpm" min="30" max="300" value="120">
+        <span id="bpmValue">120</span>
+      </div>
+      <div class="control-group">
+        <label for="volume">Volume:</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+        <span id="volumeValue">50%</span>
+      </div>
+      <div class="control-group">
+        <label for="timeSignature">Time Sig:</label>
+        <select id="timeSignature">
+          <option value="2/4">2/4</option>
+          <option value="3/4">3/4</option>
+          <option value="4/4" selected>4/4</option>
+          <option value="6/8">6/8</option>
+          <option value="5/4">5/4</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="sound">Sound:</label>
+        <select id="sound">
+          <option value="woodblock">Woodblock</option>
+          <option value="click">Click</option>
+          <option value="bell">Bell</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <script>
+    const keys = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+    const scales = [
+      'Ionian (Major)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian',
+      '---Melodic Minor Modes---',
+      'Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered',
+      '---Harmonic  Minor Modes---',
+      'Harmonic Minor', 'Locrian ♮6', 'Ionian #5', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Ultralocrian',
+      '---Harmonic Major Modes---',
+      'Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7',
+      '---Double Harmonic Major Modes---',
+      'Double Harmonic Major', 'Lydian #2 #6', 'Ultraphrygian', 'Hungarian Minor', 'Oriental', 'Ionian Augmented #2', 'Locrian bb3 bb7',
+      '---Symmetrical Scales---',
+      'Whole-Half Diminished', 'Half-Whole Diminished',
+      '---Other---',
+      'Whole Tone',
+      'Random'
+    ];
+    const voicings = ['triads', 'Triad First Inversion', 'Triad Second Inversion', , 'sixth', 'rootless sixth', 'seventh', '1-3-5-7', '3-5-7-1', '5-7-1-3', '7-1-3-5', 'sus2', 'sus4', '7 sus2', '7 sus4', '9 sus4', 'drop2 triad', 'drop2-seventh', 'drop3-seventh', 'add 2/5', 'quartal', '13 add 9', '7-2-3-5', '3-6-2', '3-5-7-2', 'So What', '3-6-2-5-1', '1-2-4-5','1-2-5-6', '1-2-3-4-5', '7-3-5', '2-3-5', '3-5-2', '5-2-3', '2-3-6', '7-3-4', '6-1-3-5', 'Kenny Barron voicing', '2 min7 13/1', 'Major 11', '6/9 + 7', '3-5-6-2', '3-7-2-5-1', '1-4-7', '6/9', '7-2-3-5-6-2', '1-4-5-7-2', '3-5-1-2-6'];
+    const progressions = ['2-5-1', 'ii-V-I', '1-6-2-5', 'I-vi-ii-V', '1-4-5', 'I-IV-V', '7-3-6', '3-6-2-5-1', '3-6-2-5-1-6-2-5', '1-6-2-5-1', '2-5-1-4-7-3-6', '6-2-5-1-4-7-3', '1-6-4-5', '1-5-6-4', '1-5-4-6', '6-4-1-5', '1-4-3-6'];
+    const scaleIntervals = {
+      'Ionian (Major)': [0, 2, 4, 5, 7, 9, 11],
+      'Dorian': [0, 2, 3, 5, 7, 9, 10],
+      'Phrygian': [0, 1, 3, 5, 7, 8, 10],
+      'Lydian': [0, 2, 4, 6, 7, 9, 11],
+      'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
+      'Aeolian (Natural Minor)': [0, 2, 3, 5, 7, 8, 10],
+      'Locrian': [0, 1, 3, 5, 6, 8, 10],
+      'Locrian': [0, 1, 3, 5, 6, 8, 10],
+      'Melodic Minor': [0, 2, 3, 5, 7, 9, 11],
+      'Dorian b2': [0, 1, 3, 5, 7, 9, 10],
+      'Lydian Augmented': [0, 2, 4, 6, 8, 9, 11],
+      'Lydian Dominant': [0, 2, 4, 6, 7, 9, 10],
+      'Mixolydian b6': [0, 2, 4, 5, 7, 8, 10],
+      'Locrian #2': [0, 2, 3, 5, 6, 8, 10],
+      'Altered': [0, 1, 3, 4, 6, 8, 10],
+      'Harmonic Minor': [0, 2, 3, 5, 7, 8, 11],
+      'Locrian ♮6': [0, 1, 3, 5, 6, 9, 10],
+      'Ionian #5': [0, 2, 4, 5, 8, 9, 11],
+      'Dorian #4': [0, 2, 3, 6, 7, 9, 10],
+      'Phrygian Dominant': [0, 1, 4, 5, 7, 8, 10],
+      'Lydian #2': [0, 3, 4, 6, 7, 9, 11],
+      'Ultralocrian': [0, 1, 3, 4, 6, 8, 9],
+      'Harmonic Major': [0, 2, 4, 5, 7, 8, 11],
+      'Dorian b5': [0, 2, 3, 5, 6, 9, 10],
+      'Phrygian b4': [0, 1, 3, 4, 7, 8, 10],
+      'Lydian b3': [0, 2, 3, 6, 7, 9, 11],
+      'Mixolydian b2': [0, 1, 4, 5, 7, 9, 10],
+      'Lydian Augmented #2': [0, 3, 4, 6, 8, 9, 11],
+      'Locrian bb7': [0, 1, 3, 5, 6, 8, 9],
+      'Double Harmonic Major': [0, 1, 4, 5, 7, 8, 11],
+      'Lydian #2 #6': [0, 3, 4, 6, 7, 10, 11],
+      'Ultraphrygian': [0, 1, 3, 4, 7, 8, 9],
+      'Hungarian Minor': [0, 2, 3, 6, 7, 8, 11],
+      'Oriental': [0, 1, 4, 5, 6, 9, 10],
+      'Ionian Augmented #2': [0, 3, 4, 5, 8, 9, 11],
+      'Locrian bb3 bb7': [0, 1, 2, 5, 6, 8, 9],
+      'Whole Tone': [0, 2, 4, 6, 8, 10],
+      'Whole-Half Diminished': [0, 2, 3, 5, 6, 8, 9, 11],
+      'Half-Whole Diminished': [0, 1, 3, 4, 6, 7, 9, 10]
+    };
+    const chordQualities = {
+      'Ionian (Major)': ['maj', 'm', 'm', 'maj', 'maj', 'm', 'dim'],
+      'Dorian': ['m', 'm', 'maj', 'maj', 'm', 'dim', 'maj'],
+      'Phrygian': ['m', 'maj', 'maj', 'm', 'dim', 'maj', 'm'],
+      'Lydian': ['maj', 'maj', 'm', 'dim', 'maj', 'm', 'm'],
+      'Mixolydian': ['maj', 'm', 'dim', 'maj', 'm', 'm', 'maj'],
+      'Aeolian (Natural Minor)': ['m', 'dim', 'maj', 'm', 'm', 'maj', 'maj'],
+      'Locrian': ['dim', 'maj', 'm', 'm', 'maj', 'maj', 'm'],
+      'Melodic Minor': ['m', 'm', '+', '', '', 'dim', 'dim'],
+      'Dorian b2': ['m', '', '', '', 'dim', '', 'dim'],
+      'Lydian Augmented': ['', '', '', '+', '+', 'm', 'dim'],
+      'Lydian Dominant': ['', '', '', '+', 'm', 'm', 'dim'],
+      'Mixolydian b6': ['', 'm', 'dim', '', 'm', '', 'dim'],
+      'Locrian #2': ['dim', 'm', '', '', 'dim', '', 'm'],
+      'Altered': ['dim', '', '', '', '+', '', 'm'],
+      'Harmonic Minor': ['m', 'dim', '+', 'm', '', '', 'dim'],
+      'Locrian ♮6': ['dim', '', '', 'm', 'dim', '', 'm'],
+      'Ionian #5': ['', '', '+', '', '', 'm', 'dim'],
+      'Dorian #4': ['m', 'm', '+', '', 'm', 'dim', ''],
+      'Phrygian Dominant': ['', '+', '', 'm', 'dim', '', 'm'],
+      'Lydian #2': ['', '', 'm', 'dim', '', 'm', 'm'],
+      'Ultralocrian': ['dim', '', 'm', 'dim', '', 'm', 'm'],
+      'Harmonic Major': ['', 'dim', 'aug', 'm', '', 'm', 'dim'],
+      'Dorian b5': ['m', 'dim', '', 'dim', '', '', 'aug'],
+      'Phrygian b4': ['', '', 'dim', '', 'm', 'aug', 'm'],
+      'Lydian b3': ['m', 'aug', '', '', 'dim', '', 'm'],
+      'Mixolydian b2': ['', 'm', '', '', 'aug', 'm', 'dim'],
+      'Lydian Augmented #2': ['aug', 'm', 'dim', '', 'm', '', ''],
+      'Locrian bb7': ['dim', '', 'm', 'aug', 'm', '', ''],
+      'Double Harmonic Major': ['', 'aug', 'm', '', '', 'aug', 'dim'],
+      'Lydian #2 #6': ['', 'm', 'aug', 'dim', 'aug', '', 'm'],
+      'Ultraphrygian': ['aug', 'dim', '', 'aug', 'm', '', ''],
+      'Hungarian Minor': ['m', '', 'aug', '', 'dim', 'aug', ''],
+      'Oriental': ['', 'aug', 'm', 'dim', 'aug', '', 'm'],
+      'Ionian Augmented #2': ['aug', 'm', '', '', 'aug', 'dim', ''],
+      'Locrian bb3 bb7': ['dim', '', 'aug', 'm', '', '', 'aug'],
+      'Whole Tone': ['aug', 'aug', 'aug', 'aug', 'aug', 'aug'],
+      'Whole-Half Diminished': ['dim', 'm', 'aug', 'dim', 'm', 'aug', 'dim', 'm'],
+      'Half-Whole Diminished': ['dim', 'aug', 'dim', 'aug', 'dim', 'aug', 'dim', 'aug']
+    };
+    const seventhQualities = {
+      'Ionian (Major)': ['maj7', 'm7', 'm7', 'maj7', '7', 'm7', 'm7b5'],
+      'Dorian': ['m7', 'm7', 'maj7', '7', 'm7', 'm7b5', 'maj7'],
+      'Phrygian': ['m7', 'maj7', '7', 'm7', 'm7b5', 'maj7', 'm7'],
+      'Lydian': ['maj7', '7', 'm7', 'm7b5', 'maj7', 'm7', 'm7'],
+      'Mixolydian': ['7', 'm7', 'm7b5', 'maj7', 'm7', 'm7', 'maj7'],
+      'Aeolian (Natural Minor)': ['m7', 'm7b5', 'maj7', 'm7', 'm7', 'maj7', '7'],
+      'Locrian': ['m7b5', 'maj7', 'm7', 'm7', 'maj7', '7', 'm7'],
+      'Melodic Minor': ['mMaj7', 'm7', '+maj7', '7', '7', 'm7b5', 'm7b5'],
+      'Dorian b2': ['m7', 'maj7', '7', '7', 'm7b5', 'm7b5', 'maj7'],
+      'Lydian Augmented': ['maj7', '7', '7', '+maj7', '+maj7', 'm7', 'm7b5'],
+      'Lydian Dominant': ['7', '7', '7', '+maj7', 'm7', 'm7', 'm7b5'],
+      'Mixolydian b6': ['7', 'm7', 'm7b5', '7', 'm7', 'maj7', 'm7b5'],
+      'Locrian #2': ['m7b5', 'm7', 'maj7', '7', 'm7b5', 'maj7', 'm7'],
+      'Altered': ['7alt', 'maj7', '7', '7', '+maj7', '7', 'm7'],
+      'Harmonic Minor': ['mMaj7', 'm7b5', '+maj7', 'm7', '7', 'maj7', 'dim7'],
+      'Locrian ♮6': ['dim7', 'maj7', '7', 'm7', 'm7b5', 'maj7', 'm7'],
+      'Ionian #5': ['maj7', '7', '+maj7', 'm7', 'm7', 'm7b5', 'dim7'],
+      'Dorian #4': ['m7', 'm7', '+maj7', 'maj7', '7', 'm7b5', '7'],
+      'Phrygian Dominant': ['7', '+maj7', '7', 'm7', 'm7b5', 'maj7', 'm7'],
+      'Lydian #2': ['maj7', '7', 'm7', 'm7b5', '7', 'm7', 'm7'],
+      'Ultralocrian': ['dim7', '7', 'm7', 'm7b5', '7', 'm7', 'maj7'],
+      'Harmonic Major': ['maj7', 'm7b5', 'aug7', 'm7', '7', 'm7', 'dim7'],
+      'Dorian b5': ['m7', 'm7b5', 'maj7', 'm7b5', '7', 'maj7', 'aug7'],
+      'Phrygian b4': ['7', 'maj7', 'm7b5', '7', 'm7', 'aug7', 'm7'],
+      'Lydian b3': ['m7', 'aug7', 'maj7', '7', 'm7b5', 'maj7', 'm7'],
+      'Mixolydian b2': ['7', 'm7', 'maj7', '7', 'aug7', 'm7', 'm7b5'],
+      'Lydian Augmented #2': ['aug7', 'm7', 'm7b5', 'maj7', 'm7', 'maj7', '7'],
+      'Locrian bb7': ['dim7', 'maj7', 'm7', 'aug7', 'm7', 'maj7', '7'],
+      'Double Harmonic Major': ['maj7', 'aug7', 'm7', '7', '7', 'aug7', 'dim7'],
+      'Lydian #2 #6': ['maj7', 'm7', 'aug7', 'dim7', 'aug7', 'maj7', 'm7'],
+      'Ultraphrygian': ['aug7', 'dim7', '7', 'aug7', 'm7', 'maj7', '7'],
+      'Hungarian Minor': ['m7', 'maj7', 'aug7', '7', 'dim7', 'aug7', 'maj7'],
+      'Oriental': ['7', 'aug7', 'm7', 'dim7', 'aug7', 'maj7', 'm7'],
+      'Ionian Augmented #2': ['aug7', 'm7', '7', 'maj7', 'aug7', 'dim7', 'maj7'],
+      'Locrian bb3 bb7': ['dim7', '7', 'aug7', 'm7', 'maj7', '7', 'aug7'],
+      'Whole Tone': ['7#5', '7#5', '7#5', '7#5', '7#5', '7#5'],
+      'Whole-Half Diminished': ['m7b5', 'm7b5', 'maj7#5', 'm7b5', 'm7b5', 'maj7#5', 'm7b5', 'm7b5'],
+      'Half-Whole Diminished': ['dim7', '7b9', 'dim7', '7b9', 'dim7', '7b9', 'dim7', '7b9']
+    };
+
+    function getRandomScale() {
+      const scaleNames = Object.keys(scaleIntervals);
+      return scaleNames[Math.floor(Math.random() * scaleNames.length)];
+    }
+
+    function getScaleNotes(key, scale) {
+      const actualScale = scale === 'Random' ? getRandomScale() : scale;
+      const startIndex = keys.indexOf(key);
+      return scaleIntervals[actualScale].map(interval => keys[(startIndex + interval) % 12]);
+    }
+
+    function getChordNotes(root, scaleNotes, quality, voicing) {
+      const rootIndex = scaleNotes.indexOf(root);
+      let chordNotes = [];
+      const getNote = (interval) => scaleNotes[(rootIndex + interval) % 7];
+      switch (voicing) {
+        // case 'Triad':
+        case 'triads':
+          chordNotes = [root, getNote(2), getNote(4)];
+          break;
+        case 'Seventh Chords':
+        case 'seventh':
+          chordNotes = [root, getNote(2), getNote(4), getNote(6)];
+          break;
+        case 'sixth':
+          chordNotes = [root, getNote(2), getNote(4), getNote(5)];
+          break;
+        case 'rootless sixth':
+          chordNotes = [getNote(2), getNote(4), getNote(5), root];
+          break;
+        case 'sus2':
+          chordNotes = [root, getNote(1), getNote(4)];
+          break;
+        case 'sus4':
+          chordNotes = [root, getNote(3), getNote(4)];
+          break;
+        case '7 sus2':
+          chordNotes = [root, getNote(1), getNote(4), getNote(6)];
+          break;
+        case '7 sus4':
+          chordNotes = [root, getNote(3), getNote(4), getNote(6)];
+          break;
+        case '9 sus4':
+          chordNotes = [root, getNote(3), getNote(4), getNote(6), getNote(1)];
+          break;
+        case 'drop2 triad':
+          chordNotes = [getNote(2), root, getNote(4)];
+          break;
+        case 'drop2-seventh':
+          chordNotes = [getNote(4), root, getNote(2), getNote(6)];
+          break;
+        case 'drop3-seventh':
+          chordNotes = [getNote(2), root, getNote(4), getNote(6)];
+          break;
+        case 'add 2/5':
+          chordNotes = [getNote(4), getNote(1), getNote(2), root, getNote(1), getNote(4)];
+          break;
+        case 'quartal':
+          chordNotes = [root, getNote(3), getNote(6), getNote(2)];
+          break;
+        case '13 add 9':
+          chordNotes = [root, getNote(2), getNote(5), getNote(6), getNote(1)];
+          break;
+        case '7-2-3-5':
+          chordNotes = [getNote(6), getNote(1), getNote(2), getNote(4)];
+          break;
+        case '3-6-2':
+          chordNotes = [getNote(2), getNote(5), getNote(1)];
+          break;
+        case '3-5-7-2':
+          chordNotes = [getNote(2), getNote(4), getNote(6), getNote(1)];
+          break;
+        case 'So What':
+          chordNotes = [getNote(1), getNote(4), root, getNote(3), getNote(5)];
+          break;
+        case '3-6-2-5-1':
+          chordNotes = [getNote(2), getNote(5), getNote(1), getNote(4), root];
+          break;
+        case '1-2-4-5':
+          chordNotes = [root, getNote(1), getNote(3), getNote(4)];
+          break;
+        case '7-3-5':
+          chordNotes = [getNote(6), getNote(2), getNote(4)];
+          break;
+        case '2-3-5':
+          chordNotes = [getNote(1), getNote(2), getNote(4)];
+          break;
+        case '2-3-6':
+          chordNotes = [getNote(1), getNote(2), getNote(5)];
+          break;
+        case '7-3-4':
+          chordNotes = [getNote(6), getNote(2), getNote(3)];
+          break;
+        case '1-3-5-7':
+          chordNotes = [root, getNote(2), getNote(4), getNote(6)];
+          break;
+        case '3-5-7-1':
+          chordNotes = [getNote(2), getNote(4), getNote(6), root];
+          break;
+        case '5-7-1-3':
+          chordNotes = [getNote(4), getNote(6), root, getNote(2)];
+          break;
+        case '6-1-3-5':
+          chordNotes = [getNote(5), root, getNote(2), getNote(4)];
+          break;
+        case 'Kenny Barron voicing':
+          chordNotes = [getNote(4), getNote(1), getNote(2), getNote(6), getNote(3)];
+          break;
+        case '2 min7 13/1':
+          chordNotes = [getNote(6), getNote(1), getNote(3), getNote(5), root];
+          break;
+        case 'Major 11':
+          chordNotes = [getNote(4), getNote(2), getNote(3), getNote(6)];
+          break;
+        case '6/9 + 7':
+          chordNotes = [root, getNote(2), getNote(4), getNote(5), getNote(1), getNote(6)];
+          break;
+        case '3-5-6-2':
+          chordNotes = [getNote(2), getNote(4), getNote(5), getNote(1)];
+          break;
+        case '3-7-2-5-1':
+          chordNotes = [getNote(2), getNote(6), getNote(1), getNote(4), root];
+          break;
+        case '1-4-7':
+          chordNotes = [root, getNote(3), getNote(6)];
+          break;
+        case '6/9':
+          chordNotes = [getNote(0), getNote(4), getNote(5), getNote(2), getNote(4), getNote(5), getNote(1)];
+          break;
+        case '7-2-3-5-6-2':
+          chordNotes = [getNote(6), getNote(1), getNote(2), getNote(4), getNote(5), getNote(1)];
+          break;
+        case '3-5-2':
+          chordNotes = [getNote(2), getNote(4), getNote(1)];
+          break;
+        case '5-2-3':
+          chordNotes = [getNote(4), getNote(1), getNote(2)];
+          break;
+        case '1-4-5-7-2':
+          chordNotes = [root, getNote(3), getNote(4), getNote(6), getNote(1)];
+          break;
+        case '3-5-1-2-6':
+          chordNotes = [getNote(2), getNote(4), getNote(0), getNote(1), getNote(5)];
+          break;
+        case 'Triad First Inversion':
+          chordNotes = [getNote(2), getNote(4), getNote(0)];
+          break;
+        case 'Triad Second Inversion':
+          chordNotes = [getNote(4), getNote(0), getNote(2)];
+          break;
+        case '7-1-3-5':
+          chordNotes = [getNote(6), getNote(0), getNote(2), getNote(4)];
+          break;
+        case '1-2-3-4-5':
+        case '1-2-4-5':
+          chordNotes = [root, getNote(1), getNote(2), getNote(3), getNote(4)];
+          break;
+          case '1-2-5-6':
+          chordNotes = [root, getNote(1), getNote(4), getNote(5)];
+          break;
+        default:
+          // Fallback to triad if voicing is not recognized
+          chordNotes = [root, getNote(2), getNote(4)];
+      }
+      return chordNotes;
+    }
+
+    function getRandomChords(key) {
+      const scaleNotes = getScaleNotes(key, 'Ionian (Major)');
+      return scaleNotes.map((note, index) => {
+        const randomMode = modes[Math.floor(Math.random() * (modes.length - 2))]; // Exclude 'Random' and last item
+        const modeScaleNotes = getScaleNotes(key, randomMode);
+        const chordNotes = getChordNotes(modeScaleNotes[index], chordTypeSelect.value, modeScaleNotes);
+        let quality, name;
+        if (chordTypeSelect.value === 'seventh') {
+          quality = seventhQualities[randomMode][index];
+          name = modeScaleNotes[index] + quality;
+        } else {
+          quality = chordQualities[randomMode][index];
+          name = modeScaleNotes[index] + (quality === '' ? 'maj' : quality);
+        }
+        return {
+          numeral: ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][index],
+          name: name,
+          notes: chordNotes
+        };
+      });
+    }
+
+    function generateChords(key, scale, voicing) {
+      let scaleNotes, qualities;
+      const numerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+      if (scale === 'Random') {
+        const randomScale = getRandomScale();
+        scaleNotes = getScaleNotes(key, randomScale);
+        qualities = voicing === 'triads' ? chordQualities[randomScale] : seventhQualities[randomScale];
+      } else {
+        scaleNotes = getScaleNotes(key, scale);
+        qualities = voicing === 'triads' ? chordQualities[scale] : seventhQualities[scale];
+      }
+      return scaleNotes.map((note, index) => {
+        let quality = qualities[index];
+        let chordName;
+        if (voicing === 'triads') {
+          chordName = note + quality;
+        } else if (voicing === 'seventh') {
+          chordName = note + quality;
+        } else {
+          // For other voicings, use the seventh chord quality as the base
+          chordName = note + seventhQualities[scale][index] + ' ' + voicing;
+        }
+        return {
+          numeral: numerals[index],
+          name: chordName,
+          notes: getChordNotes(note, scaleNotes, quality, voicing),
+          voicing: voicing,
+          root: note,
+          quality: quality
+        };
+      });
+    }
+
+    function getProgressionChords(chords, progression) {
+      const progressionMap = {
+        '2-5-1': [1, 4, 0],
+        'ii-V-I': [1, 4, 0],
+        '1-6-2-5': [0, 5, 1, 4],
+        'I-vi-ii-V': [0, 5, 1, 4],
+        '1-4-5': [0, 3, 4],
+        'I-IV-V': [0, 3, 4],
+        '7-3-6': [6, 2, 5],
+        '3-6-2-5-1': [2, 5, 1, 4, 0],
+        '3-6-2-5-1-6-2-5': [2, 5, 1, 4, 0, 5, 1, 4],
+        '1-6-2-5-1': [0, 5, 1, 4, 0],
+        '2-5-1-4-7-3-6': [1, 4, 0, 3, 6, 2, 5],
+        '6-2-5-1-4-7-3': [5, 1, 4, 0, 3, 6, 2],
+        '1-6-4-5': [0, 5, 3, 4],
+        '1-5-6-4': [0, 4, 5, 3],
+        '1-5-4-6': [0, 4, 3, 5],
+        '6-4-1-5': [5, 3, 0, 4],
+        '1-4-3-6': [0, 3, 2, 5]
+      };
+      const progressionIndices = progressionMap[progression];
+      return progressionIndices.map(index => chords[index]);
+    }
+
+    function displayChords(chords, elementId) {
+      const output = document.getElementById(elementId);
+      output.innerHTML = '';
+      const table = document.createElement('table');
+      table.className = 'chord-table';
+      chords.forEach(chord => {
+        const row = table.insertRow();
+        row.className = 'chord-row';
+        const numeralCell = row.insertCell(0);
+        numeralCell.className = 'chord-cell numeral';
+        numeralCell.textContent = chord.numeral;
+        const nameCell = row.insertCell(1);
+        nameCell.className = 'chord-cell chord-name';
+        nameCell.textContent = chord.name;
+        const notesCell = row.insertCell(2);
+        notesCell.className = 'chord-cell';
+        notesCell.textContent = `(${chord.notes.join(', ')})`;
+      });
+      output.appendChild(table);
+    }
+
+    function updateDisplay() {
+      const primaryKey = document.getElementById('primaryKeySelect').value;
+      const primaryScale = document.getElementById('primaryScaleSelect').value;
+      const primaryVoicing = document.getElementById('primaryVoicingSelect').value;
+      const parallelKey = document.getElementById('parallelKeySelect').value;
+      const parallelScale = document.getElementById('parallelScaleSelect').value;
+      const parallelVoicing = document.getElementById('parallelVoicingSelect').value;
+      const progression = document.getElementById('progressionSelect').value;
+      const primaryChords = generateChords(primaryKey, primaryScale, primaryVoicing);
+      const parallelChords = generateChords(parallelKey, parallelScale, parallelVoicing);
+      const primaryProgressionChords = getProgressionChords(primaryChords, progression);
+      const parallelProgressionChords = getProgressionChords(parallelChords, progression);
+      document.getElementById('primaryProgression').textContent = `Progression: ${progression} - ${primaryProgressionChords.map(chord => chord.name).join(' - ')}`;
+      document.getElementById('parallelProgression').textContent = `Progression: ${progression} - ${parallelProgressionChords.map(chord => chord.name).join(' - ')}`;
+      document.getElementById('primaryScaleNotes').textContent = `Scale Notes: ${getScaleNotes(primaryKey, primaryScale).join(' ')}`;
+      document.getElementById('parallelScaleNotes').textContent = `Scale Notes: ${getScaleNotes(parallelKey, parallelScale).join(' ')}`;
+      // Add these lines to display the scale/mode names
+      document.getElementById('primaryScaleName').textContent = `Scale/Mode: ${primaryKey} ${primaryScale}`;
+      document.getElementById('parallelScaleName').textContent = `Scale/Mode: ${parallelKey} ${parallelScale}`;
+      displayChords(primaryChords, 'primaryOutput');
+      displayChords(parallelChords, 'parallelOutput');
+    }
+
+    function populateDropdown(selectId, options, defaultValue = null) {
+      const select = document.getElementById(selectId);
+      options.forEach(option => {
+        if (option.startsWith('---') && option.endsWith('---')) {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = option.replace(/---/g, '');
+          select.appendChild(optgroup);
+        } else {
+          const optionElement = document.createElement('option');
+          optionElement.value = option;
+          optionElement.textContent = option;
+          select.appendChild(optionElement);
+        }
+      });
+      if (defaultValue) {
+        select.value = defaultValue;
+      }
+    }
+
+    function addNewMode(modeName, modeGroup) {
+      const groupDivider = `---${modeGroup}---`;
+      const existingDividerIndex = scales.indexOf(groupDivider);
+      if (existingDividerIndex === -1) {
+        scales.push(groupDivider);
+        scales.push(modeName);
+      } else {
+        let insertIndex = existingDividerIndex + 1;
+        while (insertIndex < scales.length && !scales[insertIndex].startsWith('---')) {
+          insertIndex++;
+        }
+        scales.splice(insertIndex, 0, modeName);
+      }
+      populateDropdown('primaryScaleSelect', scales, document.getElementById('primaryScaleSelect').value);
+      populateDropdown('parallelScaleSelect', scales, document.getElementById('parallelScaleSelect').value);
+    }
+
+    function setTheme(theme) {
+      document.body.className = theme + '-mode';
+    }
+
+    function init() {
+      populateDropdown('primaryKeySelect', keys, 'C');
+      populateDropdown('primaryScaleSelect', scales, 'Ionian (Major)');
+      populateDropdown('parallelScaleSelect', scales, 'Aeolian (Natural Minor)');
+      populateDropdown('primaryVoicingSelect', voicings, 'triads');
+      populateDropdown('progressionSelect', progressions, '2-5-1');
+      populateDropdown('parallelKeySelect', keys, 'C');
+      populateDropdown('parallelScaleSelect', scales, 'Aeolian (Natural Minor)');
+      populateDropdown('parallelVoicingSelect', voicings, 'triads');
+      document.getElementById('primaryKeySelect').addEventListener('change', updateDisplay);
+      document.getElementById('primaryScaleSelect').addEventListener('change', updateDisplay);
+      document.getElementById('primaryVoicingSelect').addEventListener('change', updateDisplay);
+      document.getElementById('progressionSelect').addEventListener('change', updateDisplay);
+      document.getElementById('parallelKeySelect').addEventListener('change', updateDisplay);
+      document.getElementById('parallelScaleSelect').addEventListener('change', updateDisplay);
+      document.getElementById('parallelVoicingSelect').addEventListener('change', updateDisplay);
+      document.getElementById('themeSelect').addEventListener('change', function() {
+        setTheme(this.value);
+      });
+      updateDisplay();
+    }
+    document.addEventListener('DOMContentLoaded', init);
+    // Enhanced Metronome (new code)
+    const audioContext = new(window.AudioContext || window.webkitAudioContext)();
+    let isPlaying = false;
+    let intervalId = null;
+    let currentBeat = 0;
+    const bpmSlider = document.getElementById('bpm');
+    const volumeSlider = document.getElementById('volume');
+    const timeSignatureSelect = document.getElementById('timeSignature');
+    const soundSelect = document.getElementById('sound');
+    const bpmValue = document.getElementById('bpmValue');
+    const volumeValue = document.getElementById('volumeValue');
+    const toggleButton = document.getElementById('toggleButton');
+    const sounds = {
+      click: [1000, 0.1, "sine"],
+      bell: [1800, 0.15, "sine"],
+      drum: [150, 0.2, "triangle"],
+      woodblock: [2500, 0.05, "sine"]
+    };
+
+    function playSound(isAccent = false) {
+      const [frequency, duration, type] = sounds[soundSelect.value];
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.type = type;
+      oscillator.frequency.value = isAccent ? frequency * 1.5 : frequency;
+      gainNode.gain.value = volumeSlider.value * (isAccent ? 1.5 : 1);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function playBeat() {
+      const [beatsPerBar] = timeSignatureSelect.value.split('/').map(Number);
+      const isAccent = currentBeat % beatsPerBar === 0;
+      playSound(isAccent);
+      currentBeat = (currentBeat + 1) % beatsPerBar;
+    }
+
+    function startMetronome() {
+      const interval = 60000 / bpmSlider.value;
+      intervalId = setInterval(playBeat, interval);
+    }
+
+    function stopMetronome() {
+      clearInterval(intervalId);
+      currentBeat = 0;
+    }
+    toggleButton.addEventListener('click', () => {
+      if (isPlaying) {
+        stopMetronome();
+        toggleButton.textContent = 'Start';
+      } else {
+        startMetronome();
+        toggleButton.textContent = 'Stop';
+      }
+      isPlaying = !isPlaying;
+    });
+    bpmSlider.addEventListener('input', () => {
+      bpmValue.textContent = bpmSlider.value;
+      if (isPlaying) {
+        stopMetronome();
+        startMetronome();
+      }
+    });
+    volumeSlider.addEventListener('input', () => {
+      volumeValue.textContent = `${Math.round(volumeSlider.value * 100)}%`;
+    });
+    timeSignatureSelect.addEventListener('change', () => {
+      if (isPlaying) {
+        stopMetronome();
+        startMetronome();
+      }
+    });
+    soundSelect.addEventListener('change', () => {
+      playSound(); // Play a sample of the selected sound
+    });
+  </script>
+</body>
+
+</html>
