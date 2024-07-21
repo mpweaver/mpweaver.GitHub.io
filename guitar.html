@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diatonic Guitar Chords</title>
     <style>
+
+        :root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --line-color: #000000;
+}
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
         h1, h2 {
             text-align: center;
@@ -75,6 +83,10 @@
             <option value="LydianSharp2">Lydian #2</option>
             <option value="SuperLocrian">Super Locrian</option>
         </select>
+        <select id="themeSelect">
+    <option value="light">Light Mode</option>
+    <option value="dark">Dark Mode</option>
+</select>
     </div>
     <h2 id="currentMode"></h2>
     <div id="chordContainer"></div>
@@ -271,10 +283,24 @@
             return note + suffix;
         }
 
+        function setTheme(theme) {
+    if (theme === 'dark') {
+        document.documentElement.style.setProperty('--bg-color', '#222222');
+        document.documentElement.style.setProperty('--text-color', '#ffffff');
+        document.documentElement.style.setProperty('--line-color', '#ffffff');
+    } else {
+        document.documentElement.style.setProperty('--bg-color', '#ffffff');
+        document.documentElement.style.setProperty('--text-color', '#000000');
+        document.documentElement.style.setProperty('--line-color', '#000000');
+    }
+    updateChords(); // Redraw chords to update colors
+}
+
         document.getElementById('keySelect').addEventListener('change', updateChords);
         document.getElementById('modeSelect').addEventListener('change', updateChords);
 
         // Initial render
+        setTheme('Dark');
         updateChords();
     </script>
 </body>
