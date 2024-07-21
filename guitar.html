@@ -149,7 +149,7 @@
                 line.setAttribute('y1', (i * 20 + 40).toString());
                 line.setAttribute('x2', '90');
                 line.setAttribute('y2', (i * 20 + 40).toString());
-                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke', 'currentColor');
                 svg.appendChild(line);
             }
 
@@ -160,7 +160,7 @@
                 line.setAttribute('y1', '40');
                 line.setAttribute('x2', (i * 16 + 10).toString());
                 line.setAttribute('y2', '120');
-                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke', 'currentColor');
                 svg.appendChild(line);
             }
 
@@ -171,6 +171,7 @@
                 text.setAttribute('y', '55');
                 text.setAttribute('font-size', '12');
                 text.setAttribute('text-anchor', 'start');
+                text.setAttribute('fill', 'currentColor');
                 text.textContent = startFret.toString();
                 svg.appendChild(text);
             }
@@ -183,12 +184,12 @@
                     if (fret === 0) {
                         circle.setAttribute('cy', '30');
                         circle.setAttribute('r', '6');
-                        circle.setAttribute('stroke', 'black');
+                        circle.setAttribute('stroke', 'currentColor');
                         circle.setAttribute('fill', 'none');
                     } else {
                         circle.setAttribute('cy', ((fret - startFret + 1) * 20 + 30).toString());
                         circle.setAttribute('r', '6');
-                        circle.setAttribute('fill', 'black');
+                        circle.setAttribute('fill', 'currentColor');
                     }
                     svg.appendChild(circle);
                 } else if (fret === -1) {
@@ -197,6 +198,7 @@
                     text.setAttribute('y', '30');
                     text.setAttribute('text-anchor', 'middle');
                     text.setAttribute('font-size', '12');
+                    text.setAttribute('fill', 'currentColor');
                     text.textContent = 'X';
                     svg.appendChild(text);
                 }
