@@ -1,1 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diatonic Guitar Chords for Major Scale Modes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
+        .chord-container {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .chord-diagram {
+            width: 100px;
+            height: 160px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Diatonic Guitar Chords for Major Scale Modes</h1>
+    <div class="controls">
+        <select id="keySelect">
+            <option value="C">C</option>
+            <option value="Db">Db</option>
+            <option value="D">D</option>
+            <option value="Eb">Eb</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="Gb">Gb</option>
+            <option value="G">G</option>
+            <option value="Ab">Ab</option>
+            <option value="A">A</option>
+            <option value="Bb">Bb</option>
+            <option value="B">B</option>
+        </select>
+        <select id="modeSelect">
+            <option value="Ionian">Ionian (Major)</option>
+            <option value="Dorian">Dorian</option>
+            <option value="Phrygian">Phrygian</option>
+            <option value="Lydian">Lydian</option>
+            <option value="Mixolydian">Mixolydian</option>
+            <option value="Aeolian">Aeolian (Natural Minor)</option>
+            <option value="Locrian">Locrian</option>
+        </select>
+    </div>
+    <h2 id="currentMode"></h2>
+    <div id="chordContainer"></div>
 
+    <script>
+        const modes = {
+            'Ionian':     ['I',   'ii',  'iii', 'IV',  'V',   'vi',  'vii°'],
+            'Dorian':     ['i',   'ii',  'III', 'IV',  'v',   'vi°', 'VII'],
+            'Phrygian':   ['i',   'II',  'III', 'iv',  'v°',  'VI',  'vii'],
+            'Lydian':     ['I',   'II',  'iii', '#iv°','V',   'vi',  'vii'],
+            'Mixolydian': ['I',   'ii',  'iii', 'IV',  'v',   'vi°', 'VII'],
+            'Aeolian':    ['i',   'ii°', 'III', 'iv',  'v',   'VI',  'VII'],
+            'Locrian':    ['i°',  'II',  'iii', 'iv',  'V',   'VI',  'vii']
+        };
+
+        const chordShapes = {
+            'C':  '032010', 'Cm':  'x35543', 'C°':  'x3434x', 'Cm7b5': 'x3434x',
+            'Db': 'x43121', 'Dbm': '446654', 'Db°': 'x45450', 'Dbm7b5': 'x4545x',
+            'D':  'xx0232', 'Dm':  'xx0231', 'D°':  'xx0131', 'Dm7b5': 'x5656x',
+            'Eb': 'xx1343', 'Ebm': 'xx4342', 'Eb°': 'xx1242', 'Ebm7b5': 'x6767x',
+            'E':  '022100', 'Em':  '022000', 'E°':  '0123xx', 'Em7b5': 'x7878x',
+            'F':  '133211', 'Fm':  '133111', 'F°':  '1234xx', 'Fm7b5': 'x8989x',
+            'Gb': '244322', 'Gbm': '244222', 'Gb°': '2345xx', 'Gbm7b5': 'x10 10 10 10x',
+            'G':  '320003', 'Gm':  '355333', 'G°':  '3456xx', 'Gm7b5': 'x10 11 10 11x',
+            'Ab': '466544', 'Abm': '466444', 'Ab°': '4567xx', 'Abm7b5': 'x11 12 11 12x',
+            'A':  'x02220', 'Am':  'x02210', 'A°':  'x0121x', 'Am7b5': 'x01213',
+            'Bb': 'x13331', 'Bbm': 'x13321', 'Bb°': 'x1232x', 'Bbm7b5': 'x1323x',
+            'B':  'x24442', 'Bm':  'x24432', 'B°':  'x2343x', 'Bm7b5': 'x2434x'
+        };
+
+        function createChordDiagram(chordName, fretPattern, romanNumeral) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'chord-diagram');
+            svg.setAttribute('viewBox', '0 0 100 160');
+
+            // Determine start fret
+            const frets = fretPattern.split('').map(c => c === 'x' ? -1 : parseInt(c));
+            const validFrets = frets.filter(f => f > 0);
+            const startFret = validFrets.length > 0 ? Math.min(...validFrets) : 0;
+            const endFret = Math.max(startFret + 3, ...validFrets);
+
+            // Draw fretboard
+            for (let i = 0; i <= 4; i++) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', '10');
+                line.setAttribute('y1', (i * 20 + 40).toString());
+                line.setAttribute('x2', '90');
+                line.setAttribute('y2', (i * 20 + 40).toString());
+                line.setAttribute('stroke', 'black');
+                svg.appendChild(line);
+            }
+
+            // Draw strings
+            for (let i = 0; i < 6; i++) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', (i * 16 + 10).toString());
+                line.setAttribute('y1', '40');
+                line.setAttribute('x2', (i * 16 + 10).toString());
+                line.setAttribute('y2', '120');
+                line.setAttribute('stroke', 'black');
+                svg.appendChild(line);
+            }
+
+            // Draw start fret number if not starting at the nut
+            if (startFret > 0) {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '2');
+                text.setAttribute('y', '55');
+                text.setAttribute('font-size', '12');
+                text.setAttribute('text-anchor', 'start');
+                text.textContent = startFret.toString();
+                svg.appendChild(text);
+            }
+
+            // Draw fingerings
+            frets.forEach((fret, index) => {
+                if (fret >= 0) {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', (index * 16 + 10).toString());
+                    if (fret === 0) {
+                        circle.setAttribute('cy', '30');
+                        circle.setAttribute('r', '6');
+                        circle.setAttribute('stroke', 'black');
+                        circle.setAttribute('fill', 'none');
+                    } else {
+                        circle.setAttribute('cy', ((fret - startFret + 1) * 20 + 30).toString());
+                        circle.setAttribute('r', '6');
+                        circle.setAttribute('fill', 'black');
+                    }
+                    svg.appendChild(circle);
+                } else if (fret === -1) {
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', (index * 16 + 10).toString());
+                    text.setAttribute('y', '30');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('font-size', '12');
+                    text.textContent = 'X';
+                    svg.appendChild(text);
+                }
+            });
+
+            // Add chord name
+            const chordText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            chordText.setAttribute('x', '50');
+            chordText.setAttribute('y', '145');
+            chordText.setAttribute('text-anchor', 'middle');
+            chordText.setAttribute('font-size', '14');
+            chordText.textContent = chordName;
+            svg.appendChild(chordText);
+
+            // Add Roman numeral
+            const romanText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            romanText.setAttribute('x', '50');
+            romanText.setAttribute('y', '160');
+            romanText.setAttribute('text-anchor', 'middle');
+            romanText.setAttribute('font-size', '12');
+            romanText.textContent = romanNumeral;
+            svg.appendChild(romanText);
+
+            return svg;
+        }
+
+        function updateChords() {
+            const key = document.getElementById('keySelect').value;
+            const mode = document.getElementById('modeSelect').value;
+            const chordContainer = document.getElementById('chordContainer');
+            const currentMode = document.getElementById('currentMode');
+
+            currentMode.textContent = `${key} ${mode}`;
+            chordContainer.innerHTML = '';
+
+            const scaleNotes = getScaleNotes(key, mode);
+            
+            modes[mode].forEach((chord, index) => {
+                const chordDiv = document.createElement('div');
+                chordDiv.className = 'chord-container';
+                const chordNote = scaleNotes[index];
+                const chordName = getChordName(chordNote, chord, mode);
+                const chordShape = chordShapes[chordName];
+                const chordDiagram = createChordDiagram(chordName, chordShape, chord);
+                chordDiv.appendChild(chordDiagram);
+                chordContainer.appendChild(chordDiv);
+            });
+        }
+
+        function getScaleNotes(key, mode) {
+            const notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+            const modeIntervals = {
+                'Ionian':     [0, 2, 4, 5, 7, 9, 11],
+                'Dorian':     [0, 2, 3, 5, 7, 9, 10],
+                'Phrygian':   [0, 1, 3, 5, 7, 8, 10],
+                'Lydian':     [0, 2, 4, 6, 7, 9, 11],
+                'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
+                'Aeolian':    [0, 2, 3, 5, 7, 8, 10],
+                'Locrian':    [0, 1, 3, 5, 6, 8, 10]
+            };
+
+            const startIndex = notes.indexOf(key);
+            return modeIntervals[mode].map(interval => notes[(startIndex + interval) % 12]);
+        }
+
+        function getChordName(note, chordType, mode) {
+            let suffix = '';
+            if (chordType === chordType.toLowerCase()) suffix = 'm';
+            if (chordType.includes('°')) suffix = mode === 'Ionian' ? 'm7b5' : '°';
+            return note + suffix;
+        }
+
+        document.getElementById('keySelect').addEventListener('change', updateChords);
+        document.getElementById('modeSelect').addEventListener('change', updateChords);
+
+        // Initial render
+        updateChords();
+    </script>
+</body>
+</html>
