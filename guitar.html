@@ -141,6 +141,11 @@
             'A':  'x02220', 'Am':  'x02210', 'A°':  'x0121x', 'Am7b5': 'x01213',
             'Bb': 'x13331', 'Bbm': 'x13321', 'Bb°': 'x1232x', 'Bbm7b5': 'x1323x',
             'B':  'x24442', 'Bm':  'x24432', 'B°':  'x2343x', 'Bm7b5': 'x2434x'
+            'C#': 'x43121', 'C#m': 'x46654', 'C#°': 'x45450', 'C#m7b5': 'x4545x',
+'D#': 'xx1343', 'D#m': 'xx4342', 'D#°': 'xx1242', 'D#m7b5': 'x6767x',
+'F#': '244322', 'F#m': '244222', 'F#°': '2345xx', 'F#m7b5': 'x9910x',
+'G#': '466544', 'G#m': '466444', 'G#°': '4567xx', 'G#m7b5': 'x11 12 11 12x',
+'A#': 'x13331', 'A#m': 'x13321', 'A#°': 'x1232x', 'A#m7b5': 'x1323x',
         };
 
         function createChordDiagram(chordName, fretPattern, romanNumeral) {
@@ -303,12 +308,21 @@
     return modeIntervals[mode].map(interval => notes[(startIndex + interval) % 12]);
 }
 
-        function getChordName(note, chordType, mode) {
-            let suffix = '';
-            if (chordType === chordType.toLowerCase()) suffix = 'm';
-            if (chordType.includes('°')) suffix = mode === 'Ionian' ? 'm7b5' : '°';
-            return note + suffix;
-        }
+       function getChordName(note, chordType, mode) {
+    let suffix = '';
+    if (chordType === chordType.toLowerCase()) suffix = 'm';
+    if (chordType.includes('°')) suffix = '°';
+    if (chordType.includes('+')) suffix = '+';
+    if (chordType.includes('7b5')) suffix = 'm7b5';
+    
+    // Handle flat notation
+    if (chordType.startsWith('b')) {
+        const noteIndex = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].indexOf(note);
+        note = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'][noteIndex];
+    }
+    
+    return note + suffix;
+}
 
         function setTheme(theme) {
     if (theme === 'dark') {
