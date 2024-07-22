@@ -46,6 +46,12 @@
         font-size: 18px;
         margin-bottom: 20px;
     }
+        .chord-container {
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+    width: 100px;
+}
     </style>
 </head>
 <body>
@@ -233,7 +239,7 @@
             return svg;
         }
 
-       function updateChords() {
+      function updateChords() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
     const chordContainer = document.getElementById('chordContainer');
@@ -247,16 +253,22 @@
     
     chordContainer.innerHTML = '';
 
-    modes[mode].forEach((chord, index) => {
+    // Ensure we always create 7 chords
+    for (let i = 0; i < 7; i++) {
         const chordDiv = document.createElement('div');
         chordDiv.className = 'chord-container';
-        const chordNote = scaleNotes[index];
+        const chordNote = scaleNotes[i];
+        const chord = modes[mode][i] || ''; // Use empty string if chord is undefined
         const chordName = getChordName(chordNote, chord, mode);
         const chordShape = chordShapes[chordName];
-        const chordDiagram = createChordDiagram(chordName, chordShape, chord);
-        chordDiv.appendChild(chordDiagram);
+        if (chordShape) {
+            const chordDiagram = createChordDiagram(chordName, chordShape, chord);
+            chordDiv.appendChild(chordDiagram);
+        } else {
+            chordDiv.textContent = `${chordName} (No diagram)`;
+        }
         chordContainer.appendChild(chordDiv);
-    });
+    }
 }
      function getScaleNotes(key, mode) {
     const sharpNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
