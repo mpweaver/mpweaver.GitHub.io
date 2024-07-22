@@ -276,8 +276,7 @@
     }
 }
      function getScaleNotes(key, mode) {
-    const sharpNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const flatNotes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     const modeIntervals = {
         'Ionian':     [0, 2, 4, 5, 7, 9, 11],
         'Dorian':     [0, 2, 3, 5, 7, 9, 10],
@@ -302,8 +301,6 @@
         'SuperLocrian':    [0, 1, 3, 4, 6, 8, 10]
     };
 
-    const useFlats = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb'].includes(key);
-    const notes = useFlats ? flatNotes : sharpNotes;
     const startIndex = notes.indexOf(key);
     return modeIntervals[mode].map(interval => notes[(startIndex + interval) % 12]);
 }
