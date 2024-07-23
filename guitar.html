@@ -34,23 +34,25 @@
         }
         .chord-container {
             display: inline-block;
-            margin: 10px;
+            margin: 20px;
             text-align: center;
         }
+       //increase chord container width so the fret numbers show
         .chord-diagram {
-            width: 100px;
-            height: 160px;
+            width: 130px;
+            height: 180px;
         }
          #scaleNotes {
         text-align: center;
         font-size: 18px;
         margin-bottom: 20px;
     }
+      
         .chord-container {
     display: inline-block;
     margin: 10px;
     text-align: center;
-    width: 100px;
+    width: 120px;
 }
     </style>
 </head>
@@ -102,6 +104,7 @@
    <h2 id="currentMode"></h2>
 <p id="scaleNotes"></p>
 <div id="chordContainer"></div>
+  
 
     <script>
         const modes = {
@@ -130,14 +133,15 @@
 
        const chordShapes = {
     // Major chords
-    'C': '032010', 'C#': 'x43121', 'Db': 'x43121', 'D': 'xx0232', 'D#': 'xx1343', 'Eb': 'xx1343',
+    'C': '032010', 'C#': 'x43121', 'Db': 'x43121', 'D': 'xx0232', 'D#': 'xx5343', 'Eb': 'xx0343',
     'E': '022100', 'F': '133211', 'F#': '244322', 'Gb': '244322', 'G': '320003', 'G#': '466544',
-    'Ab': '466544', 'A': 'x02220', 'A#': 'x13331', 'Bb': 'x13331', 'B': 'x24442',
-
+    'Ab': '466544', 'A': 'x02220', 'A#': 'x13331', 'Bb': 'x1333x', 'B': 'x2444x',
+'Cb': 'x24442', // Same as B
+    'Fb': '022100', // Same as E
     // Minor chords
-    'Cm': 'x35543', 'C#m': 'x46654', 'Dbm': 'x46654', 'Dm': 'xx0231', 'D#m': 'xx4342', 'Ebm': 'xx4342',
+    'Cm': 'x35543', 'C#m': 'x46654', 'Dbm': 'x46654', 'Dm': 'xx0231', 'D#m': 'xx4342', 'Ebm': 'xxx342',
     'Em': '022000', 'Fm': '133111', 'F#m': '244222', 'Gbm': '244222', 'Gm': '355333', 'G#m': '466444',
-    'Abm': '466444', 'Am': 'x02210', 'A#m': 'x13321', 'Bbm': 'x13321', 'Bm': 'x24432',
+    'Abm': '466444', 'Am': 'x02210', 'A#m': '688666', 'Bbm': 'x13321', 'Bm': 'x24432',
 
     // Diminished chords
     'C°': 'x34242', 'C#°': 'x45353', 'Db°': 'x45353', 'D°': 'xx0131', 'D#°': 'xx1242', 'Eb°': 'xx1242',
@@ -145,114 +149,129 @@
     'Ab°': '4567xx', 'A°': 'x0121x', 'A#°': 'x1232x', 'Bb°': 'x1232x', 'B°': 'x2343x',
 
     // min7b5 chords (consistent with root on A string)
-    'Cm7b5': 'x34544', 'C#m7b5': 'x45655', 'Dbm7b5': 'x45655', 'Dm7b5': 'x57766', 'D#m7b5': 'x68877',
-    'Ebm7b5': 'x68877', 'Em7b5': 'x79988', 'Fm7b5': 'x8x998', 'F#m7b5': 'x9x1099', 'Gbm7b5': 'x9x1099',
-    'Gm7b5': 'x10x11x10', 'G#m7b5': 'x11x12x11', 'Abm7b5': 'x11x12x11', 'Am7b5': 'x01213',
-    'A#m7b5': 'x12324', 'Bbm7b5': 'x12324', 'Bm7b5': 'x23435',
+    'Cm7b5': 'x3434x', 'C#m7b5': 'x4545x', 'Dbm7b5': 'x4545x', 'Dm7b5': 'x5656', 'D#m7b5': 'x6767x',
+    'Ebm7b5': '2x122x', 'Em7b5': '3x233x', 'Fm7b5': 'xx1011', 'F#m7b5': '202210', 'Gbm7b5': 'x9x1099',
+    'Gm7b5': 'x10x11x10', 'G#m7b5': 'xx0102', 'Abm7b5': 'x11x12x11', 'Am7b5': 'x01213',
+    'A#m7b5': 'xx2324', 'Bbm7b5': 'x1212x', 'Bm7b5': 'x2323x',
 
     // Augmented chords
-    'C+': 'x32110', 'C#+': 'x43221', 'Db+': 'x43221', 'D+': 'xx0332', 'D#+': 'xx1443', 'Eb+': 'xx1443',
-    'E+': '022110', 'F+': '133221', 'F#+': '244332', 'Gb+': '244332', 'G+': '355443', 'G#+': '466554',
-    'Ab+': '466554', 'A+': 'x03221', 'A#+': 'x14332', 'Bb+': 'x14332', 'B+': 'x25443'
+    'C+': 'x32110', 'C#+': 'x43221', 'Db+': 'x3322x', 'D+': 'xx0332', 'D#+': 'xx1443', 'Eb+': 'xx0343',
+    'E+': 'xx1110', 'F+': 'xx3220', 'F#+': '244332', 'Gb+': 'xx3332', 'G+': 'xx4443', 'G#+': '466554',
+    'Ab+': 'xx5554', 'A+': 'x06665', 'A#+': 'x14332', 'Bb+': 'xx4335', 'B+': 'xx5446',
+          'Cbm': 'x24432', // Same as Bm
+    'Fbm': '022000', // Same as Em
+
+    // Existing diminished, min7b5, and augmented chords remain the same
+
+    // Add these new entries for diminished chords
+    'Cb°': 'x2343x', // Same as B°
+    'Fb°': '0123xx', // Same as E°
+
+    // Add these new entries for min7b5 chords
+    'Cbm7b5': 'x23435', // Same as Bm7b5
+    'Fbm7b5': 'x79988', // Same as Em7b5
+
+    // Add these new entries for augmented chords
+    'Cb+': 'x25443', // Same as B+
+    'Fb+': '022110', // Same as E+
 };
 
-        function createChordDiagram(chordName, fretPattern, romanNumeral) {
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('class', 'chord-diagram');
-            svg.setAttribute('viewBox', '0 0 100 160');
+      function createChordDiagram(chordName, fretPattern, romanNumeral) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'chord-diagram');
+    svg.setAttribute('viewBox', '0 0 100 180');
 
-            // Determine start fret
-            const frets = fretPattern.split('').map(c => c === 'x' ? -1 : parseInt(c));
-            const validFrets = frets.filter(f => f > 0);
-            const startFret = validFrets.length > 0 ? Math.min(...validFrets) : 0;
-            const endFret = Math.max(startFret + 3, ...validFrets);
+    // Determine start fret
+    const frets = fretPattern.split('').map(c => c === 'x' ? -1 : parseInt(c));
+    const validFrets = frets.filter(f => f > 0);
+    const startFret = validFrets.length > 0 ? Math.min(...validFrets) : 0;
+    const endFret = Math.max(startFret + 3, ...validFrets);
 
-            // Draw fretboard
-            for (let i = 0; i <= 4; i++) {
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', '10');
-                line.setAttribute('y1', (i * 20 + 40).toString());
-                line.setAttribute('x2', '90');
-                line.setAttribute('y2', (i * 20 + 40).toString());
-                line.setAttribute('stroke', 'currentColor');
-                svg.appendChild(line);
+    // Draw fretboard
+    for (let i = 0; i <= 4; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '10');
+        line.setAttribute('y1', (i * 20 + 40).toString());
+        line.setAttribute('x2', '90');
+        line.setAttribute('y2', (i * 20 + 40).toString());
+        line.setAttribute('stroke', 'currentColor');
+        svg.appendChild(line);
+    }
+
+    // Draw strings
+    for (let i = 0; i < 6; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', (i * 16 + 10).toString());
+        line.setAttribute('y1', '40');
+        line.setAttribute('x2', (i * 16 + 10).toString());
+        line.setAttribute('y2', '120');
+        line.setAttribute('stroke', 'currentColor');
+        svg.appendChild(line);
+    }
+
+    // Draw start fret number if not starting at the nut
+    if (startFret > 0) {
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '-2');  // Changed from '-2' to '-5'
+        text.setAttribute('y', '55');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('text-anchor', 'start');
+        text.setAttribute('fill', 'currentColor');
+        text.textContent = startFret.toString();
+        svg.appendChild(text);
+    }
+
+    // Draw fingerings
+    frets.forEach((fret, index) => {
+        if (fret >= 0) {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', (index * 16 + 10).toString());
+            if (fret === 0) {
+                circle.setAttribute('cy', '30');
+                circle.setAttribute('r', '6');
+                circle.setAttribute('stroke', 'currentColor');
+                circle.setAttribute('fill', 'none');
+            } else {
+                circle.setAttribute('cy', ((fret - startFret + 1) * 20 + 30).toString());
+                circle.setAttribute('r', '6');
+                circle.setAttribute('fill', 'currentColor');
             }
-
-            // Draw strings
-            for (let i = 0; i < 6; i++) {
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', (i * 16 + 10).toString());
-                line.setAttribute('y1', '40');
-                line.setAttribute('x2', (i * 16 + 10).toString());
-                line.setAttribute('y2', '120');
-                line.setAttribute('stroke', 'currentColor');
-                svg.appendChild(line);
-            }
-
-            // Draw start fret number if not starting at the nut
-            if (startFret > 0) {
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', '-2');
-                text.setAttribute('y', '55');
-                text.setAttribute('font-size', '12');
-                text.setAttribute('text-anchor', 'start');
-                text.setAttribute('fill', 'currentColor');
-                text.textContent = startFret.toString();
-                svg.appendChild(text);
-            }
-
-            // Draw fingerings
-            frets.forEach((fret, index) => {
-                if (fret >= 0) {
-                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                    circle.setAttribute('cx', (index * 16 + 10).toString());
-                    if (fret === 0) {
-                        circle.setAttribute('cy', '30');
-                        circle.setAttribute('r', '6');
-                        circle.setAttribute('stroke', 'currentColor');
-                        circle.setAttribute('fill', 'none');
-                    } else {
-                        circle.setAttribute('cy', ((fret - startFret + 1) * 20 + 30).toString());
-                        circle.setAttribute('r', '6');
-                        circle.setAttribute('fill', 'currentColor');
-                    }
-                    svg.appendChild(circle);
-                } else if (fret === -1) {
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('x', (index * 16 + 10).toString());
-                    text.setAttribute('y', '30');
-                    text.setAttribute('text-anchor', 'middle');
-                    text.setAttribute('font-size', '12');
-                    text.setAttribute('fill', 'currentColor');
-                    text.textContent = 'X';
-                    svg.appendChild(text);
-                }
-            });
-
-            // Add chord name
-            const chordText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            chordText.setAttribute('x', '50');
-            chordText.setAttribute('y', '145');
-            chordText.setAttribute('text-anchor', 'middle');
-            chordText.setAttribute('font-size', '14');
-            chordText.setAttribute('fill', 'var(--text-color)');
-            chordText.textContent = chordName;
-            svg.appendChild(chordText);
-
-            // Add Roman numeral
-            const romanText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            romanText.setAttribute('x', '50');
-            romanText.setAttribute('y', '160');
-            romanText.setAttribute('text-anchor', 'middle');
-            romanText.setAttribute('font-size', '12');
-            romanText.setAttribute('fill', 'var(--text-color)');
-            romanText.textContent = romanNumeral;
-            svg.appendChild(romanText);
-
-            return svg;
+            svg.appendChild(circle);
+        } else if (fret === -1) {
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', (index * 16 + 10).toString());
+            text.setAttribute('y', '30');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-size', '17');
+            text.setAttribute('fill', 'currentColor');
+            text.textContent = 'X';
+            svg.appendChild(text);
         }
+    });
 
-      function updateChords() {
+    // Add chord name
+    const chordText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    chordText.setAttribute('x', '50');
+    chordText.setAttribute('y', '145');
+    chordText.setAttribute('text-anchor', 'middle');
+    chordText.setAttribute('font-size', '14');
+    chordText.setAttribute('fill', 'currentColor');
+    chordText.textContent = chordName;
+    svg.appendChild(chordText);
+
+    // Add Roman numeral
+    const romanText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    romanText.setAttribute('x', '50');
+    romanText.setAttribute('y', '165');
+    romanText.setAttribute('text-anchor', 'middle');
+    romanText.setAttribute('font-size', '15');
+    romanText.setAttribute('fill', 'currentColor');
+    romanText.textContent = romanNumeral;
+    svg.appendChild(romanText);
+
+    return svg;
+}
+     function updateChords() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
     const chordContainer = document.getElementById('chordContainer');
@@ -266,14 +285,18 @@
     
     chordContainer.innerHTML = '';
 
-    // Ensure we always create 7 chords
-    for (let i = 0; i < 7; i++) {
+    modes[mode].forEach((chord, index) => {
         const chordDiv = document.createElement('div');
         chordDiv.className = 'chord-container';
-        const chordNote = scaleNotes[i];
-        const chord = modes[mode][i] || ''; // Use empty string if chord is undefined
+        const chordNote = scaleNotes[index];
         const chordName = getChordName(chordNote, chord, mode);
-        const chordShape = chordShapes[chordName];
+        console.log(`Chord name generated: ${chordName}`);
+        let chordShape = chordShapes[chordName];
+        if (!chordShape && chordName.includes('#')) {
+            const flatChordName = chordName.replace('#', 'b');
+            chordShape = chordShapes[flatChordName];
+        }
+        console.log(`Chord shape found: ${chordShape}`);
         if (chordShape) {
             const chordDiagram = createChordDiagram(chordName, chordShape, chord);
             chordDiv.appendChild(chordDiagram);
@@ -281,10 +304,11 @@
             chordDiv.textContent = `${chordName} (No diagram)`;
         }
         chordContainer.appendChild(chordDiv);
-    }
+    });
 }
-     function getScaleNotes(key, mode) {
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    function getScaleNotes(key, mode) {
+    const sharpNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const flatNotes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
     const modeIntervals = {
         'Ionian':     [0, 2, 4, 5, 7, 9, 11],
         'Dorian':     [0, 2, 3, 5, 7, 9, 10],
@@ -298,37 +322,41 @@
         'LydianAugmented': [0, 2, 4, 6, 8, 9, 11],
         'LydianDominant':  [0, 2, 4, 6, 7, 9, 10],
         'Mixolydian♭6':    [0, 2, 4, 5, 7, 8, 10],
-        'Locrian♮2':       [0, 2, 3, 5, 6, 8, 10],
+        'Locrian♮2':     [0, 2, 3, 5, 6, 8, 10],
         'AlteredDominant': [0, 1, 3, 4, 6, 8, 10],
         'HarmonicMinor':   [0, 2, 3, 5, 7, 8, 11],
-        'Locrian♮6':       [0, 1, 3, 5, 6, 9, 10],
-        'IonianAugmented': [0, 2, 4, 5, 8, 9, 11],
-        'Dorian♯4':        [0, 2, 3, 6, 7, 9, 10],
+        'Locrian♮6':     [0, 1, 3, 5, 6, 9, 10],
+        'IonianAugmented':       [0, 2, 4, 5, 8, 9, 11],
+        'Dorian♯4':    [0, 2, 3, 6, 7, 9, 10],
         'PhrygianDominant':[0, 1, 4, 5, 7, 8, 10],
-        'Lydian♯2':        [0, 3, 4, 6, 7, 9, 11],
+        'Lydian♯2':    [0, 3, 4, 6, 7, 9, 11],
         'SuperLocrian':    [0, 1, 3, 4, 6, 8, 10]
     };
 
+    const minorModes = ['Dorian', 'Phrygian', 'Aeolian', 'Locrian', 'MelodicMinor', 'DorianB2', 'LocrianNat2', 'HarmonicMinor', 'LocrianNat6', 'PhrygianDominant'];
+    const useFlats = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb'].includes(key) || 
+                     minorModes.includes(mode) || 
+                     mode === 'Mixolydian';
+
+    const notes = useFlats ? flatNotes : sharpNotes;
     const startIndex = notes.indexOf(key);
     return modeIntervals[mode].map(interval => notes[(startIndex + interval) % 12]);
 }
-
        function getChordName(note, chordType, mode) {
     let suffix = '';
     if (chordType === chordType.toLowerCase()) suffix = 'm';
-    if (chordType.includes('°')) suffix = '°';
+    if (chordType.includes('°')) suffix = 'm7b5';
     if (chordType.includes('+')) suffix = '+';
-    if (chordType.includes('7b5')) suffix = 'm7b5';
     
-    // Handle flat notation
+    // Handle flat and sharp notations
     if (chordType.startsWith('b')) {
-        const noteIndex = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].indexOf(note);
-        note = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'][noteIndex];
+        note = note.replace('#', 'b');
+    } else if (chordType.includes('#')) {
+        note = note.replace('b', '#');
     }
     
     return note + suffix;
 }
-
         function setTheme(theme) {
     if (theme === 'dark') {
         document.documentElement.style.setProperty('--bg-color', '#222222');
