@@ -39,7 +39,7 @@
         }
        //increase chord container width so the fret numbers show
         .chord-diagram {
-            width: 130px;
+            width: 120px;
             height: 180px;
         }
          #scaleNotes {
@@ -107,29 +107,29 @@
   
 
     <script>
-        const modes = {
-           'Ionian':     ['I',   'ii',  'iii', 'IV',  'V',   'vi',  'vii°'],
-    'Dorian':     ['i',   'ii',  'III', 'IV',  'v',   'vi°', 'VII'],
-    'Phrygian':   ['i',   'II',  'III', 'iv',  'v°',  'VI',  'vii'],
+       const modes = {
+    'Ionian':     ['I',   'ii',  'iii', 'IV',  'V',   'vi',  'vii°'],
+    'Dorian':     ['i',   'ii',  '♭III','IV',  'v',   'vi°', '♭VII'],
+    'Phrygian':   ['i',   '♭II', '♭III','iv',  'v°',  '♭VI', '♭vii'],
     'Lydian':     ['I',   'II',  'iii', '#iv°','V',   'vi',  'vii'],
-    'Mixolydian': ['I',   'ii',  'iii', 'IV',  'v',   'vi°', 'VII'],
-    'Aeolian':    ['i',   'ii°', 'III', 'iv',  'v',   'VI',  'VII'],
-    'Locrian':    ['i°',  'II',  'iii', 'iv',  'V',   'VI',  'vii'],
-    'MelodicMinor':    ['i',   'ii',  'III+', 'IV',  'V',   'vi°', 'vii°'],
-    'Dorian♭2':        ['i',   'bII', 'III',  'IV',  'v',   'vi°', 'VII'],
+    'Mixolydian': ['I',   'ii',  'iii', 'IV',  'v',   'vi°', '♭VII'],
+    'Aeolian':    ['i',   'ii°', '♭III','iv',  'v',   '♭VI', '♭VII'],
+    'Locrian':    ['i°',  '♭II', '♭iii','iv',  '♭V',  '♭VI', '♭vii'],
+    'MelodicMinor':    ['i',   'ii',  '♭III+','IV',  'V',   'vi°', 'vii°'],
+    'DorianB2':        ['i',   '♭II', '♭III', 'IV',  'v',   'vi°', '♭VII'],
     'LydianAugmented': ['I',   'II',  'III',  '#iv°','#V',  'vi',  'vii°'],
-    'LydianDominant':  ['I',   'II',  'III',  '#iv°','V',   'vi°', 'bVII'],
-    'Mixolydian♭6':    ['I',   'ii',  'iii',  'IV',  'v',   'bVI', 'bvii'],
-    'Locrian♮2':       ['i°',  'II',  'biii', 'iv',  'bV',  'VI',  'bVII'],
-    'AlteredDominant': ['I',   'bII', 'biii', 'biv', 'bV',  'bvi', 'bvii'],
-    'HarmonicMinor':   ['i',   'ii°', 'III+', 'iv',  'V',   'VI',  'vii°'],
-    'Locrian♮6':       ['i°',  'II',  'biii', 'iv',  'bV',  'VI',  'bVII'],
-    'IonianAugmented': ['I',   'II',  'iii',  'iv',  '#V',  'vi',  'vii°'],
-    'Dorian♯4':        ['i',   'II',  'bIII', '#iv°','V',   'vi',  'bVII'],
-    'PhrygianDominant':['I',   'bII', 'III',  'iv',  'v°',  'VI',  'bvii'],
-    'Lydian♯2':        ['I',   '#II', 'iii',  '#iv°','V',   '#vi°','vii'],
-    'SuperLocrian':    ['i°',  'bII', 'biii', 'biv', 'bV',  'bvi', 'bbvii']
-        };
+    'LydianDominant':  ['I',   'II',  'III',  '#iv°','V',   'vi°', '♭VII'],
+    'Mixolydian♭6':    ['I',   'ii',  'iii',  'IV',  'v',   '♭VI', '♭vii'],
+    'Locrian♮2':     ['i°',  'II',  '♭iii', 'iv',  '♭V',  '♭VI', '♭VII'],
+    'AlteredDominant': ['I',   '♭II', '♭III', '♭iv', '♭V',  '♭vi', '♭vii'],
+    'HarmonicMinor':   ['i',   'ii°', '♭III+','iv',  'V',   '♭VI', 'vii°'],
+    'Locrian♮6':     ['i°',  '♭II', '♭iii', 'iv',  '♭V',  'VI',  '♭VII'],
+    'IonianAugmented':       ['I',   'II',  'iii',  'iv',  '#V',  'vi',  'vii°'],
+    'Dorian♯4':    ['i',   'II',  '♭III', '#iv°','V',   'vi',  '♭VII'],
+    'PhrygianDominant':['I',   '♭II', 'III',  'iv',  'v°',  '♭VI', '♭vii'],
+    'Lydian♯2':    ['I',   '#II', 'iii',  '#iv°','V',   '#vi°','vii'],
+    'SuperLocrian':    ['i°',  '♭II', '♭iii', '♭iv', '♭V',  '♭VI', '♭♭vii']
+};
 
        const chordShapes = {
     // Major chords
@@ -176,10 +176,10 @@
     'Fb+': '022110', // Same as E+
 };
 
-      function createChordDiagram(chordName, fretPattern, romanNumeral) {
+     function createChordDiagram(chordName, fretPattern, romanNumeral) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'chord-diagram');
-    svg.setAttribute('viewBox', '0 0 100 180');
+    svg.setAttribute('viewBox', '0 0 120 170');  // Increased height from 150 to 170
 
     // Determine start fret
     const frets = fretPattern.split('').map(c => c === 'x' ? -1 : parseInt(c));
@@ -190,9 +190,9 @@
     // Draw fretboard
     for (let i = 0; i <= 4; i++) {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', '10');
+        line.setAttribute('x1', '30');
         line.setAttribute('y1', (i * 20 + 40).toString());
-        line.setAttribute('x2', '90');
+        line.setAttribute('x2', '110');
         line.setAttribute('y2', (i * 20 + 40).toString());
         line.setAttribute('stroke', 'currentColor');
         svg.appendChild(line);
@@ -201,9 +201,9 @@
     // Draw strings
     for (let i = 0; i < 6; i++) {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', (i * 16 + 10).toString());
+        line.setAttribute('x1', (i * 16 + 30).toString());
         line.setAttribute('y1', '40');
-        line.setAttribute('x2', (i * 16 + 10).toString());
+        line.setAttribute('x2', (i * 16 + 30).toString());
         line.setAttribute('y2', '120');
         line.setAttribute('stroke', 'currentColor');
         svg.appendChild(line);
@@ -212,7 +212,7 @@
     // Draw start fret number if not starting at the nut
     if (startFret > 0) {
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', '-2');  // Changed from '-2' to '-5'
+        text.setAttribute('x', '15');
         text.setAttribute('y', '55');
         text.setAttribute('font-size', '12');
         text.setAttribute('text-anchor', 'start');
@@ -225,7 +225,7 @@
     frets.forEach((fret, index) => {
         if (fret >= 0) {
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', (index * 16 + 10).toString());
+            circle.setAttribute('cx', (index * 16 + 30).toString());
             if (fret === 0) {
                 circle.setAttribute('cy', '30');
                 circle.setAttribute('r', '6');
@@ -239,10 +239,10 @@
             svg.appendChild(circle);
         } else if (fret === -1) {
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', (index * 16 + 10).toString());
+            text.setAttribute('x', (index * 16 + 30).toString());
             text.setAttribute('y', '30');
             text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('font-size', '17');
+            text.setAttribute('font-size', '12');
             text.setAttribute('fill', 'currentColor');
             text.textContent = 'X';
             svg.appendChild(text);
@@ -251,8 +251,8 @@
 
     // Add chord name
     const chordText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    chordText.setAttribute('x', '50');
-    chordText.setAttribute('y', '145');
+    chordText.setAttribute('x', '60');
+    chordText.setAttribute('y', '140');  // Moved down from 135 to 140
     chordText.setAttribute('text-anchor', 'middle');
     chordText.setAttribute('font-size', '14');
     chordText.setAttribute('fill', 'currentColor');
@@ -261,12 +261,39 @@
 
     // Add Roman numeral
     const romanText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    romanText.setAttribute('x', '50');
-    romanText.setAttribute('y', '165');
+    romanText.setAttribute('x', '60');
+    romanText.setAttribute('y', '160');  // Moved down from 150 to 160
     romanText.setAttribute('text-anchor', 'middle');
-    romanText.setAttribute('font-size', '15');
+    romanText.setAttribute('font-size', '12');
     romanText.setAttribute('fill', 'currentColor');
-    romanText.textContent = romanNumeral;
+    
+    // Split the Roman numeral into parts
+    const parts = romanNumeral.match(/([♭#])?([IViv]+)(°|\+)?/);
+    if (parts) {
+        const [_, accidental, base, modifier] = parts;
+        
+        if (accidental) {
+            const accidentalText = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            accidentalText.setAttribute('dy', '-0.5em');
+            accidentalText.textContent = accidental;
+            romanText.appendChild(accidentalText);
+        }
+        
+        const baseText = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        baseText.textContent = base;
+        romanText.appendChild(baseText);
+        
+        if (modifier) {
+            const modifierText = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            modifierText.setAttribute('dy', modifier === '°' ? '-0.5em' : '0.3em');
+            modifierText.setAttribute('dx', '-0.1em');
+            modifierText.textContent = modifier;
+            romanText.appendChild(modifierText);
+        }
+    } else {
+        romanText.textContent = romanNumeral;
+    }
+    
     svg.appendChild(romanText);
 
     return svg;
