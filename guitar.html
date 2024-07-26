@@ -122,7 +122,7 @@
     'Mixolydian♭6':    ['I',   'ii',  'iii',  'IV',  'v',   '♭VI', '♭vii'],
     'Locrian♮2':     ['i°',  'II',  '♭iii', 'iv',  '♭V',  '♭VI', '♭VII'],
     'AlteredDominant': ['I',   '♭II', '♭III', '♭iv', '♭V',  '♭vi', '♭vii'],
-    'HarmonicMinor':   ['i',   'ii°', '♭III+','iv',  'V',   '♭VI', 'vii°'],
+    'HarmonicMinor': ['i', 'ii°', '♭III+', 'iv', 'V', '♭VI', 'vii°'],
     'Locrian♮6':     ['i°',  '♭II', '♭iii', 'iv',  '♭V',  'VI',  '♭VII'],
     'IonianAugmented':       ['I',   'II',  'iii',  'iv',  '#V',  'vi',  'vii°'],
     'Dorian♯4':    ['i',   'II',  '♭III', '#iv°','V',   'vi',  '♭VII'],
@@ -164,8 +164,26 @@
     // Existing diminished, min7b5, and augmented chords remain the same
 
     // Add these new entries for diminished chords
-    'Cb°': 'x2343x', // Same as B°
+    'Cb°': 'x3434x', // Same as B°
     'Fb°': '0123xx', // Same as E°
+       'C°': 'xx1212',
+    'C#°': 'xx2323',
+         'Db°': 'xx2323',
+    'D°': 'xx3434',
+    'D#°': 'xx4545',
+    'E°': 'xx2323',
+    'Eb°': 'xx4545',
+    'F°': 'xx3434',
+    'F#°': 'xx4545',
+    'Gb°': 'xx4545',
+    'G°': 'xx2323',
+    'G#°': 'xx3434',
+    'Ab°': 'xx3434',
+    'A°': 'xx4545',
+    'A#°': 'xx2323',
+    'B°': 'x3434x',   
+         'Bb°': 'xx2323',
+         
 
     // Add these new entries for min7b5 chords
     'Cbm7b5': 'x23435', // Same as Bm7b5
@@ -384,6 +402,24 @@
     
     return note + suffix;
 }
+      function getChordName(note, chordType, mode) {
+    let suffix = '';
+    if (chordType === chordType.toLowerCase()) suffix = 'm';
+    if (chordType.includes('°')) {
+        suffix = mode === 'HarmonicMinor' && chordType === 'vii°' ? '°' : 'm7b5';
+    }
+    if (chordType.includes('+')) suffix = '+';
+
+    // Handle flat and sharp notations
+    if (chordType.startsWith('♭')) {
+        note = note.replace('#', 'b');
+    } else if (chordType.includes('#')) {
+        note = note.replace('b', '#');
+    }
+
+    return note + suffix;
+}
+      
         function setTheme(theme) {
     if (theme === 'dark') {
         document.documentElement.style.setProperty('--bg-color', '#222222');
