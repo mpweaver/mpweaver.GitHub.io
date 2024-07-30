@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mode Fretboard Generator</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --line-color: #000000;
+            --highlight-color: #ff0000;
+            --chord-tone-color: #0000ff;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
+        #fretboard {
+            width: 100%;
+            overflow-x: auto;
+        }
+        #scaleNotes {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+      :root {
+    /* ... existing variables ... */
+    --non-chord-tone-color: #000000;
+}
+    </style>
+</head>
+<body>
+    <h1>Mode Fretboard Generator</h1>
+    <div class="controls">
+        <select id="keySelect">
+            <option value="C">C</option>
+            <option value="C#">C#</option>
+            <option value="D">D</option>
+            <option value="D#">D#</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F#</option>
+            <option value="G">G</option>
+            <option value="G#">G#</option>
+            <option value="A">A</option>
+            <option value="A#">A#</option>
+            <option value="B">B</option>
+        </select>
+       <select id="modeSelect">
+    <option value="Ionian">Ionian (Major)</option>
+    <option value="Dorian">Dorian</option>
+    <option value="Phrygian">Phrygian</option>
+    <option value="Lydian">Lydian</option>
+    <option value="Mixolydian">Mixolydian</option>
+    <option value="Aeolian">Aeolian (Natural Minor)</option>
+    <option value="Locrian">Locrian</option>
+    <option value="MelodicMinor">Melodic Minor</option>
+    <option value="Dorian♭2">Dorian ♭2</option>
+    <option value="LydianAugmented">Lydian Augmented</option>
+    <option value="LydianDominant">Lydian Dominant</option>
+    <option value="Mixolydian♭6">Mixolydian ♭6</option>
+    <option value="Locrian♮2">Locrian ♮2</option>
+    <option value="AlteredDominant">Altered Dominant</option>
+    <option value="HarmonicMinor">Harmonic Minor</option>
+    <option value="Locrian♮6">Locrian ♮6</option>
+    <option value="IonianAugmented">Ionian Augmented</option>
+    <option value="Dorian♯4">Dorian ♯4</option>
+    <option value="PhrygianDominant">Phrygian Dominant</option>
+    <option value="Lydian♯2">Lydian ♯2</option>
+    <option value="SuperLocrian">Super Locrian</option>
+    <!-- New pentatonic scales -->
+    <option value="PentatonicMajor">Pentatonic Major</option>
+    <option value="PentatonicMinor">Pentatonic Minor</option>
+    <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
+    <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
+</select>
+        </select>
+        <select id="themeSelect">
+            <option value="light">Light Mode</option>
+            <option value="dark">Dark Mode</option>
+        </select>
+        <select id="viewSelect">
+            <option value="diatonic">Diatonic</option>
+            <option value="chordTones">Chord Tones</option>
+        </select>
+    </div>
+    <h2 id="currentMode"></h2>
+    <p id="scaleNotes"></p>
+    <div id="fretboard"></div>
+
+    <script>
+       // ... (previous code remains the same)
+
+const modeIntervals = {
+    'Ionian': [0, 2, 4, 5, 7, 9, 11],
+    'Dorian': [0, 2, 3, 5, 7, 9, 10],
+    'Phrygian': [0, 1, 3, 5, 7, 8, 10],
+    'Lydian': [0, 2, 4, 6, 7, 9, 11],
+    'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
+    'Aeolian': [0, 2, 3, 5, 7, 8, 10],
+    'Locrian': [0, 1, 3, 5, 6, 8, 10],
+    'MelodicMinor': [0, 2, 3, 5, 7, 9, 11],
+    'Dorian♭2': [0, 1, 3, 5, 7, 9, 10],
+    'LydianAugmented': [0, 2, 4, 6, 8, 9, 11],
+    'LydianDominant': [0, 2, 4, 6, 7, 9, 10],
+    'Mixolydian♭6': [0, 2, 4, 5, 7, 8, 10],
+    'Locrian♮2': [0, 2, 3, 5, 6, 8, 10],
+    'AlteredDominant': [0, 1, 3, 4, 6, 8, 10],
+    'HarmonicMinor': [0, 2, 3, 5, 7, 8, 11],
+    'Locrian♮6': [0, 1, 3, 5, 6, 9, 10],
+    'IonianAugmented': [0, 2, 4, 5, 8, 9, 11],
+    'Dorian♯4': [0, 2, 3, 6, 7, 9, 10],
+    'PhrygianDominant': [0, 1, 4, 5, 7, 8, 10],
+    'Lydian♯2': [0, 3, 4, 6, 7, 9, 11],
+    'SuperLocrian': [0, 1, 3, 4, 6, 8, 10],
+    // New pentatonic scales
+    'PentatonicMajor': [0, 2, 4, 7, 9],
+    'PentatonicMinor': [0, 3, 5, 7, 10],
+    'PentatonicMajorBlues': [0, 2, 3, 4, 7, 9],
+    'PentatonicMinorBlues': [0, 3, 5, 6, 7, 10]
+};
+
+// ... (rest of the JavaScript code remains the same)
+
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const strings = ['E', 'B', 'G', 'D', 'A', 'E'];
+        const intervalNames = ['R', '♭2', '2', '♭3', '3', '4', '♭5', '5', '♭6', '6', '♭7', '7'];
+        const chordToneIntervals = [0, 4, 7, 11]; // Root, 3rd, 5th, 7th
+
+        function getScaleNotes(key, mode) {
+            const startIndex = notes.indexOf(key);
+            return modeIntervals[mode].map(interval => notes[(startIndex + interval) % 12]);
+        }
+
+        function createFretboard() {
+            const fretboard = document.getElementById('fretboard');
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '1300');
+            svg.setAttribute('height', '320');
+            svg.setAttribute('viewBox', '0 0 1300 320');
+
+            // Draw frets
+            for (let i = 0; i <= 24; i++) {
+                const x = i * 50 + 50;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', '40');
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', '300');
+                line.setAttribute('stroke', 'var(--line-color)');
+                line.setAttribute('stroke-width', i === 0 ? '4' : '1');
+                svg.appendChild(line);
+
+                // Add fret numbers on top and bottom
+                if (i > 0) {
+                    const topText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    topText.setAttribute('x', x);
+                    topText.setAttribute('y', '30');
+                    topText.setAttribute('fill', 'var(--text-color)');
+                    topText.setAttribute('font-size', '12');
+                    topText.setAttribute('text-anchor', 'middle');
+                    topText.textContent = i;
+                    svg.appendChild(topText);
+
+                    const bottomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    bottomText.setAttribute('x', x);
+                    bottomText.setAttribute('y', '315');
+                    bottomText.setAttribute('fill', 'var(--text-color)');
+                    bottomText.setAttribute('font-size', '12');
+                    bottomText.setAttribute('text-anchor', 'middle');
+                    bottomText.textContent = i;
+                    svg.appendChild(bottomText);
+                }
+            }
+
+            // Draw strings
+            for (let i = 0; i < 6; i++) {
+                const y = i * 48 + 60;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', '50');
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', '1275');
+                line.setAttribute('y2', y);
+                line.setAttribute('stroke', 'var(--line-color)');
+                svg.appendChild(line);
+
+                // Add string notes
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '25');
+                text.setAttribute('y', y + 5);
+                text.setAttribute('fill', 'var(--text-color)');
+                text.setAttribute('font-size', '14');
+                text.setAttribute('text-anchor', 'middle');
+                text.textContent = strings[i];
+                svg.appendChild(text);
+            }
+
+            fretboard.innerHTML = '';
+            fretboard.appendChild(svg);
+            return svg;
+        }
+
+       function updateFretboard() {
+    const key = document.getElementById('keySelect').value;
+    const mode = document.getElementById('modeSelect').value;
+    const view = document.getElementById('viewSelect').value;
+    const currentMode = document.getElementById('currentMode');
+    const scaleNotesElement = document.getElementById('scaleNotes');
+
+    currentMode.textContent = `${key} ${mode.replace(/([A-Z])/g, ' $1').trim()}`;
+
+    const scaleNotes = getScaleNotes(key, mode);
+    scaleNotesElement.textContent = `Scale: ${scaleNotes.join(' - ')}`;
+
+    const svg = createFretboard();
+
+    for (let string = 0; string < 6; string++) {
+        let startNote = notes.indexOf(strings[string]);
+        for (let fret = 0; fret <= 24; fret++) {
+            const noteIndex = (startNote + fret) % 12;
+            const note = notes[noteIndex];
+            if (scaleNotes.includes(note)) {
+                const intervalIndex = scaleNotes.indexOf(note);
+                const interval = modeIntervals[mode][intervalIndex];
+                let intervalName = intervalNames[interval];
+
+                // Special handling for Lydian Augmented mode
+                if (mode === 'LydianAugmented') {
+                    if (interval === 6) intervalName = '♯4';
+                    if (interval === 8) intervalName = '♯5';
+                }
+
+                // Determine if it's a chord tone
+                const isChordTone = chordToneIntervals.includes(interval) ||
+                                    (intervalName === '♭3') ||
+                                    (intervalName === '♯3') ||
+                                    (intervalName === '♯5') ||
+                                    (intervalName === '♭7') ||
+                                    (intervalName === '♯7') ||
+                                    (mode === 'LydianAugmented' && intervalName === '♯5');
+
+                // Skip non-chord tones if in chord tone view
+                if (view === 'chordTones' && !isChordTone) {
+                    continue;
+                }
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', fret * 50 + 50);
+                circle.setAttribute('cy', string * 48 + 60);
+                circle.setAttribute('r', '18');
+
+                // Set color based on interval
+                if (['R', '1'].includes(intervalName)) {
+                    circle.setAttribute('fill', 'var(--highlight-color)');
+                } else if (isChordTone) {
+                    circle.setAttribute('fill', 'var(--chord-tone-color)');
+                } else {
+                    circle.setAttribute('fill', 'var(--non-chord-tone-color)');
+                }
+
+                svg.appendChild(circle);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', fret * 50 + 50);
+                text.setAttribute('y', string * 48 + 65);
+                 text.setAttribute('fill', 'white');
+                text.setAttribute('font-size', '14');
+                text.setAttribute('text-anchor', 'middle');
+                text.textContent = intervalName;
+                svg.appendChild(text);
+            }
+        }
+    }
+}
+        function setTheme(theme) {
+    if (theme === 'dark') {
+        document.documentElement.style.setProperty('--bg-color', '#222222');
+        document.documentElement.style.setProperty('--text-color', '#ffffff');
+        document.documentElement.style.setProperty('--line-color', '#ffffff');
+        document.documentElement.style.setProperty('--highlight-color', '#ff6666');
+        document.documentElement.style.setProperty('--chord-tone-color', '#6666ff');
+        document.documentElement.style.setProperty('--non-chord-tone-color', '#aaaaaa');
+    } else {
+        document.documentElement.style.setProperty('--bg-color', '#ffffff');
+        document.documentElement.style.setProperty('--text-color', '#000000');
+        document.documentElement.style.setProperty('--line-color', '#000000');
+        document.documentElement.style.setProperty('--highlight-color', '#ff0000');
+        document.documentElement.style.setProperty('--chord-tone-color', '#0000ff');
+        document.documentElement.style.setProperty('--non-chord-tone-color', '#000000');
+    }
+    updateFretboard();
+}
+
+        document.getElementById('keySelect').addEventListener('change', updateFretboard);
+        document.getElementById('modeSelect').addEventListener('change', updateFretboard);
+        document.getElementById('themeSelect').addEventListener('change', function() {
+            setTheme(this.value);
+        });
+        document.getElementById('viewSelect').addEventListener('change', updateFretboard);
+
+        // Initial render
+        setTheme('light');
+      text.setAttribute('fill', 'var(--bg-color)');
+        updateFretboard();
+    </script>
