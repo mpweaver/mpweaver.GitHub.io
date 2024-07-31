@@ -141,15 +141,15 @@ const modeIntervals = {
     'LydianAugmented': [0, 2, 4, 6, 8, 9, 11],
     'LydianDominant': [0, 2, 4, 6, 7, 9, 10],
     'Mixolydian♭6': [0, 2, 4, 5, 7, 8, 10],
-    'Locrian♮2': [0, 2, 3, 5, 6, 8, 10],
+   'Locrian♮2': [0, 2, 3, 5, 6, 8, 10],
     'AlteredDominant': [0, 1, 3, 4, 6, 8, 10],
     'HarmonicMinor': [0, 2, 3, 5, 7, 8, 11],
     'Locrian♮6': [0, 1, 3, 5, 6, 9, 10],
-    'IonianAugmented': [0, 2, 4, 5, 8, 9, 11],
+   'IonianAugmented': [0, 2, 4, 5, 8, 9, 11],
     'Dorian♯4': [0, 2, 3, 6, 7, 9, 10],
     'PhrygianDominant': [0, 1, 4, 5, 7, 8, 10],
     'Lydian♯2': [0, 3, 4, 6, 7, 9, 11],
-    'SuperLocrian': [0, 1, 3, 4, 6, 8, 10],
+     'SuperLocrian': [0, 1, 3, 4, 6, 8, 10],
     // New pentatonic scales
     'PentatonicMajor': [0, 2, 4, 7, 9],
     'PentatonicMinor': [0, 3, 5, 7, 10],
@@ -237,7 +237,7 @@ const modeIntervals = {
             return svg;
         }
 
-       function updateFretboard() {
+      function updateFretboard() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
     const view = document.getElementById('viewSelect').value;
@@ -261,20 +261,24 @@ const modeIntervals = {
                 const interval = modeIntervals[mode][intervalIndex];
                 let intervalName = intervalNames[interval];
 
-                // Special handling for Lydian Augmented mode
-                if (mode === 'LydianAugmented') {
-                    if (interval === 6) intervalName = '♯4';
-                    if (interval === 8) intervalName = '♯5';
-                }
-
                 // Determine if it's a chord tone
-                const isChordTone = chordToneIntervals.includes(interval) ||
-                                    (intervalName === '♭3') ||
-                                    (intervalName === '♯3') ||
-                                    (intervalName === '♯5') ||
-                                    (intervalName === '♭7') ||
-                                    (intervalName === '♯7') ||
-                                    (mode === 'LydianAugmented' && intervalName === '♯5');
+                let isChordTone = false;
+                switch(mode) {
+                    case 'Locrian':
+                    case 'Locrian♮2':
+                    case 'AlteredDominant':
+                    case 'SuperLocrian':
+                        isChordTone = [0, 3, 6, 8, 10].includes(interval); // Root, ♭3, ♭5, ♯5, ♭7
+                        break;
+                    case 'IonianAugmented':
+                        isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
+                        break;
+                    case 'Locrian♮6':
+                        isChordTone = [0, 3, 6, 9, 10].includes(interval); // Root, ♭3, ♭5, 6, ♭7
+                        break;
+                    default:
+                        isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Root, 3, ♯3, 5, ♭7, 7
+                }
 
                 // Skip non-chord tones if in chord tone view
                 if (view === 'chordTones' && !isChordTone) {
@@ -287,7 +291,7 @@ const modeIntervals = {
                 circle.setAttribute('r', '18');
 
                 // Set color based on interval
-                if (['R', '1'].includes(intervalName)) {
+                if (interval === 0) {
                     circle.setAttribute('fill', 'var(--highlight-color)');
                 } else if (isChordTone) {
                     circle.setAttribute('fill', 'var(--chord-tone-color)');
@@ -300,7 +304,7 @@ const modeIntervals = {
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', fret * 50 + 50);
                 text.setAttribute('y', string * 48 + 65);
-                 text.setAttribute('fill', 'white');
+                text.setAttribute('fill', 'white');
                 text.setAttribute('font-size', '14');
                 text.setAttribute('text-anchor', 'middle');
                 text.textContent = intervalName;
