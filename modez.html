@@ -52,18 +52,19 @@
     <h1>Mode Fretboard Generator</h1>
     <div class="controls">
         <select id="keySelect">
-            <option value="C">C</option>
-            <option value="C#">C#</option>
-            <option value="D">D</option>
-            <option value="D#">D#</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="F#">F#</option>
-            <option value="G">G</option>
-            <option value="G#">G#</option>
-            <option value="A">A</option>
-            <option value="A#">A#</option>
-            <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="Db">Db</option>
+    <option value="D">D</option>
+    <option value="Eb">Eb</option>
+    <option value="E">E</option>
+    <option value="F">F</option>
+    <option value="Gb">Gb</option>
+    <option value="G">G</option>
+    <option value="Ab">Ab</option>
+    <option value="A">A</option>
+    <option value="Bb">Bb</option>
+    <option value="B">B</option>
+</select>
         </select>
        <select id="modeSelect">
     <option value="Ionian">Ionian (Major)</option>
@@ -92,6 +93,10 @@
     <option value="PentatonicMinor">Pentatonic Minor</option>
     <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
     <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
+         <option value="MajorBebop">Major Bebop</option>
+    <option value="DominantBebop">Dominant Bebop</option>
+     <option value="MinorBebop♮7">Minor Bebop (Dorian ♮7)</option>
+        <option value="MinorBebop♮3">Minor Bebop (Dorian ♮3)</option>
 </select>
         </select>
         <select id="themeSelect">
@@ -121,7 +126,7 @@
             <li><span class="legend-circle root"></span> Red indicates the root note</li>
             <li><span class="legend-circle chord-tone"></span> Blue indicates chord tones</li>
             <li><span class="legend-circle non-chord-tone"></span> Black/Grey indicates non-chord tones</li>
-            <li>Numbers indicate scale intervals, not fingerings or fret numbers</li>
+            <li>Circled Numbers indicate scale intervals, not fingerings or fret numbers</li>
         </ul>
     </div>
 
@@ -154,20 +159,48 @@ const modeIntervals = {
     'PentatonicMajor': [0, 2, 4, 7, 9],
     'PentatonicMinor': [0, 3, 5, 7, 10],
     'PentatonicMajorBlues': [0, 2, 3, 4, 7, 9],
-    'PentatonicMinorBlues': [0, 3, 5, 6, 7, 10]
+    'PentatonicMinorBlues': [0, 3, 5, 6, 7, 10],
+  'MajorBebop': [0, 2, 4, 5, 7, 8, 9, 11],
+    'DominantBebop': [0, 2, 4, 5, 7, 9, 10, 11],
+    'MinorBebop♮7': [0, 2, 3, 5, 7, 9, 10, 11],
+    'MinorBebop♮3': [0, 2, 3, 4, 5, 7, 9, 10]
 };
 
 // ... (rest of the JavaScript code remains the same)
 
-        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+
         const strings = ['E', 'B', 'G', 'D', 'A', 'E'];
         const intervalNames = ['R', '♭2', '2', '♭3', '3', '4', '♭5', '5', '♭6', '6', '♭7', '7'];
+
         const chordToneIntervals = [0, 4, 7, 11]; // Root, 3rd, 5th, 7th
 
-        function getScaleNotes(key, mode) {
-            const startIndex = notes.indexOf(key);
-            return modeIntervals[mode].map(interval => notes[(startIndex + interval) % 12]);
+      function getScaleNotes(key, mode) {
+    const startIndex = notes.indexOf(key);
+    const scaleIntervals = modeIntervals[mode];
+    
+    // Determine if we should use sharps based on the key and mode
+    const useSharp = (
+        ['D', 'E', 'G', 'A', 'B'].includes(key) && 
+        !mode.includes('Blues') && 
+        !mode.includes('Pentatonic') && 
+        mode !== 'Phrygian' &&
+        mode !== 'Locrian'
+    ) || mode.includes('Lydian');
+
+    return scaleIntervals.map(interval => {
+        const noteIndex = (startIndex + interval) % 12;
+        let note = notes[noteIndex];
+        
+        // Convert flats to sharps for specific cases
+        if (useSharp && note.includes('b')) {
+            const sharpIndex = (noteIndex + 11) % 12;
+            note = notes[sharpIndex] + '#';
         }
+        
+        return note;
+    });
+}
 
         function createFretboard() {
             const fretboard = document.getElementById('fretboard');
@@ -237,7 +270,7 @@ const modeIntervals = {
             return svg;
         }
 
-      function updateFretboard() {
+    function updateFretboard() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
     const view = document.getElementById('viewSelect').value;
@@ -251,6 +284,14 @@ const modeIntervals = {
 
     const svg = createFretboard();
 
+    const useSharp = (
+        ['D', 'E', 'G', 'A', 'B'].includes(key) && 
+        !mode.includes('Blues') && 
+        !mode.includes('Pentatonic') && 
+        mode !== 'Phrygian' &&
+        mode !== 'Locrian'
+    ) || mode.includes('Lydian');
+
     for (let string = 0; string < 6; string++) {
         let startNote = notes.indexOf(strings[string]);
         for (let fret = 0; fret <= 24; fret++) {
@@ -261,14 +302,29 @@ const modeIntervals = {
                 const interval = modeIntervals[mode][intervalIndex];
                 let intervalName = intervalNames[interval];
 
+                // Handle accidentals
+                if (!useSharp || mode === 'PentatonicMajorBlues') {
+                    intervalName = intervalName.replace('♯', '♭');
+                    if (interval === 6) intervalName = '♭5';
+                    if (mode === 'PentatonicMajorBlues' && interval === 3) intervalName = '♭3';
+                } else {
+                    if (intervalName === '♭5') {
+                        intervalName = '♯4';
+                    } else {
+                        intervalName = intervalName.replace('♭', '♯');
+                    }
+                }
+
                 // Determine if it's a chord tone
                 let isChordTone = false;
                 switch(mode) {
                     case 'Locrian':
                     case 'Locrian♮2':
+                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
+                        break;
                     case 'AlteredDominant':
                     case 'SuperLocrian':
-                        isChordTone = [0, 3, 6, 8, 10].includes(interval); // Root, ♭3, ♭5, ♯5, ♭7
+                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♯4/♭5, ♭7
                         break;
                     case 'IonianAugmented':
                         isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
@@ -304,7 +360,7 @@ const modeIntervals = {
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', fret * 50 + 50);
                 text.setAttribute('y', string * 48 + 65);
-                text.setAttribute('fill', 'white');
+                text.setAttribute('fill', 'var(--bg-color)');
                 text.setAttribute('font-size', '14');
                 text.setAttribute('text-anchor', 'middle');
                 text.textContent = intervalName;
@@ -313,6 +369,8 @@ const modeIntervals = {
         }
     }
 }
+// ... (rest of the code remains the same)
+// ... (rest of the code remains the same)
         function setTheme(theme) {
     if (theme === 'dark') {
         document.documentElement.style.setProperty('--bg-color', '#222222');
