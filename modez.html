@@ -1,5 +1,5 @@
- 
-}<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -183,14 +183,15 @@ const modeIntervals = {
     const scaleIntervals = modeIntervals[mode];
     
     const useSharp = (
-        [ 'D', 'E', 'G', 'A', 'B'].includes(key) && 
+        [   ].includes(key) && 
         !mode.includes('Blues') && 
         !mode.includes('Pentatonic') && 
+     
       !mode.includes('Bebop')  && 
         mode !== 'Phrygian' &&
         mode !== 'Locrian'  &&
       mode !== 'WholeTone'
-    ) || mode.includes('Lydian') ;
+    ) //|| mode.includes('Lydian') ;
 
     return scaleIntervals.map(interval => {
         const noteIndex = (startIndex + interval) % 12;
@@ -217,7 +218,7 @@ const modeIntervals = {
                 const x = i * 50 + 50;
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('x1', x);
-                line.setAttribute('y1', '40');
+                line.setAttribute('y1', '60');
                 line.setAttribute('x2', x);
                 line.setAttribute('y2', '300');
                 line.setAttribute('stroke', 'var(--line-color)');
@@ -291,8 +292,10 @@ const modeIntervals = {
         ['D', 'E', 'G', 'A', 'B'].includes(key) &&
         !mode.includes('Blues') &&
         !mode.includes('Pentatonic') &&
+        !mode.includes('Bebop') &&
         mode !== 'Phrygian' &&
-        mode !== 'Locrian'
+        mode !== 'Locrian' &&
+        mode !== 'WholeTone'
     ) || mode.includes('Lydian');
 
     for (let string = 0; string < 6; string++) {
@@ -305,19 +308,28 @@ const modeIntervals = {
                 const interval = modeIntervals[mode][intervalIndex];
                 let intervalName = intervalNames[interval];
 
-                // Handle accidentals and bebop scales
-                if (useSharp) {
-                    if (intervalName === '♭5') {
-                        intervalName = '♯4';
-                    } else if (intervalName === '♭7' && mode.includes('Bebop')) {
-                        intervalName = '♮6';
-                    } else if (intervalName === '♭3' && mode === 'MinorBebop♮3') {
-                        intervalName = '♯2';
-                    } else {
-                        intervalName = intervalName.replace('♭', '♯');
-                    }
+                // Handle special cases for specific modes
+                switch (mode) {
+                    case 'Lydian':
+                    case 'LydianDominant':
+                        if (interval === 6) intervalName = '♯4';
+                        if (interval === 10) intervalName = '♭7';
+                        break;
+                    case 'LydianAugmented':
+                        if (interval === 6) intervalName = '♯4';
+                        if (interval === 8) intervalName = '♯5';
+                        break;
+                    // Add other special cases here as needed
+                }
+
+                // Handle general sharp/flat conversion
+                if (useSharp && intervalName.includes('♭')) {
+                    intervalName = intervalName.replace('♭', '♯');
+                    // Preserve natural 3 and 7
+                    if (intervalName === '♯3') intervalName = '3';
+                    if (intervalName === '♯7') intervalName = '7';
                 } else {
-                    if (interval === 6) intervalName = '♭5';
+                    if (interval === 6 && !mode.includes('Lydian')) intervalName = '♭5';
                     if (mode === 'PentatonicMajorBlues' && interval === 3) intervalName = '♭3';
                 }
 
@@ -337,51 +349,50 @@ const modeIntervals = {
                         case 'MinorBebop♮3':
                             if (interval === 4) intervalName = '3';
                             break;
-                        
                     }
                 }
 
                 // Determine if it's a chord tone
                 let isChordTone = false;
-    switch(mode) {
-        case 'Ionian':
-            isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
-            break;
-        case 'Dorian':
-            isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
-            break;
-        case 'Phrygian':
-            isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
-            break;
-        case 'Lydian':
-            isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
-            break;
-        case 'Mixolydian':
-            isChordTone = [0, 4, 7, 10].includes(interval); // Root, 3, 5, ♭7
-            break;
-        case 'Aeolian':
-            isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
-            break;
-        case 'Locrian':
-        case 'Locrian♮2':
-            isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
-            break;
-        case 'AlteredDominant':
-        case 'SuperLocrian':
-            isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♯4/♭5, ♭7
-            break;
-        case 'IonianAugmented':
-            isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
-            break;
-        case 'Locrian♮6':
-            isChordTone = [0, 3, 6, 9, 10].includes(interval); // Root, ♭3, ♭5, 6, ♭7
-            break;
-        case 'WholeTone':
-            isChordTone = [0, 4, 8].includes(interval); // Root, 3, #5
-            break;
-        default:
-            isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Default case for other scales
-    }
+                switch(mode) {
+                    case 'Ionian':
+                        isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
+                        break;
+                    case 'Dorian':
+                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
+                        break;
+                    case 'Phrygian':
+                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
+                        break;
+                    case 'Lydian':
+                        isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
+                        break;
+                    case 'Mixolydian':
+                        isChordTone = [0, 4, 7, 10].includes(interval); // Root, 3, 5, ♭7
+                        break;
+                    case 'Aeolian':
+                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
+                        break;
+                    case 'Locrian':
+                    case 'Locrian♮2':
+                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
+                        break;
+                    case 'AlteredDominant':
+                    case 'SuperLocrian':
+                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♯4/♭5, ♭7
+                        break;
+                    case 'IonianAugmented':
+                        isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
+                        break;
+                    case 'Locrian♮6':
+                        isChordTone = [0, 3, 6, 9, 10].includes(interval); // Root, ♭3, ♭5, 6, ♭7
+                        break;
+                    case 'WholeTone':
+                        isChordTone = [0, 4, 8].includes(interval); // Root, 3, #5
+                        break;
+                    default:
+                        isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Default case for other scales
+                }
 
                 // Skip non-chord tones if in chord tone view
                 if (view === 'chordTones' && !isChordTone) {
@@ -416,8 +427,7 @@ const modeIntervals = {
         }
     }
 }
-// ... (rest of the code remains the same)
-// ... (rest of the code remains the same)
+      
         function setTheme(theme) {
     if (theme === 'dark') {
         document.documentElement.style.setProperty('--bg-color', '#222222');
