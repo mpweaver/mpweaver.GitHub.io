@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+ 
+}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -175,24 +176,23 @@ const modeIntervals = {
 
         const chordToneIntervals = [0, 4, 7, 11]; // Root, 3rd, 5th, 7th
 
-      function getScaleNotes(key, mode) {
+     function getScaleNotes(key, mode) {
     const startIndex = notes.indexOf(key);
     const scaleIntervals = modeIntervals[mode];
     
-    // Determine if we should use sharps based on the key and mode
     const useSharp = (
-        ['D', 'E', 'G', 'A', 'B'].includes(key) && 
+        [ 'D', 'E', 'G', 'A', 'B'].includes(key) && 
         !mode.includes('Blues') && 
         !mode.includes('Pentatonic') && 
+      !mode.includes('Bebop')  && 
         mode !== 'Phrygian' &&
         mode !== 'Locrian'
-    ) || mode.includes('Lydian');
+    ) || mode.includes('Lydian') ;
 
     return scaleIntervals.map(interval => {
         const noteIndex = (startIndex + interval) % 12;
         let note = notes[noteIndex];
         
-        // Convert flats to sharps for specific cases
         if (useSharp && note.includes('b')) {
             const sharpIndex = (noteIndex + 11) % 12;
             note = notes[sharpIndex] + '#';
@@ -270,7 +270,7 @@ const modeIntervals = {
             return svg;
         }
 
-    function updateFretboard() {
+   function updateFretboard() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
     const view = document.getElementById('viewSelect').value;
@@ -285,9 +285,9 @@ const modeIntervals = {
     const svg = createFretboard();
 
     const useSharp = (
-        ['D', 'E', 'G', 'A', 'B'].includes(key) && 
-        !mode.includes('Blues') && 
-        !mode.includes('Pentatonic') && 
+        ['D', 'E', 'G', 'A', 'B'].includes(key) &&
+        !mode.includes('Blues') &&
+        !mode.includes('Pentatonic') &&
         mode !== 'Phrygian' &&
         mode !== 'Locrian'
     ) || mode.includes('Lydian');
@@ -302,16 +302,38 @@ const modeIntervals = {
                 const interval = modeIntervals[mode][intervalIndex];
                 let intervalName = intervalNames[interval];
 
-                // Handle accidentals
-                if (!useSharp || mode === 'PentatonicMajorBlues') {
-                    intervalName = intervalName.replace('♯', '♭');
-                    if (interval === 6) intervalName = '♭5';
-                    if (mode === 'PentatonicMajorBlues' && interval === 3) intervalName = '♭3';
-                } else {
+                // Handle accidentals and bebop scales
+                if (useSharp) {
                     if (intervalName === '♭5') {
                         intervalName = '♯4';
+                    } else if (intervalName === '♭7' && mode.includes('Bebop')) {
+                        intervalName = '♮6';
+                    } else if (intervalName === '♭3' && mode === 'MinorBebop♮3') {
+                        intervalName = '♯2';
                     } else {
                         intervalName = intervalName.replace('♭', '♯');
+                    }
+                } else {
+                    if (interval === 6) intervalName = '♭5';
+                    if (mode === 'PentatonicMajorBlues' && interval === 3) intervalName = '♭3';
+                }
+
+                // Special handling for bebop scales
+                if (mode.includes('Bebop')) {
+                    switch (mode) {
+                        case 'MajorBebop':
+                            if (interval === 8) intervalName = useSharp ? '♮6' : '♭6';
+                            break;
+                        case 'DominantBebop':
+                            if (interval === 10) intervalName = '♭7';
+                            if (interval === 11) intervalName = '7';
+                            break;
+                        case 'MinorBebop♮7':
+                            if (interval === 11) intervalName = '7';
+                            break;
+                        case 'MinorBebop♮3':
+                            if (interval === 4) intervalName = '3';
+                            break;
                     }
                 }
 
@@ -331,6 +353,16 @@ const modeIntervals = {
                         break;
                     case 'Locrian♮6':
                         isChordTone = [0, 3, 6, 9, 10].includes(interval); // Root, ♭3, ♭5, 6, ♭7
+                        break;
+                    case 'MajorBebop':
+                        isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
+                        break;
+                    case 'DominantBebop':
+                        isChordTone = [0, 4, 7, 10, 11].includes(interval); // Root, 3, 5, ♭7, 7
+                        break;
+                    case 'MinorBebop♮7':
+                    case 'MinorBebop♮3':
+                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
                         break;
                     default:
                         isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Root, 3, ♯3, 5, ♭7, 7
