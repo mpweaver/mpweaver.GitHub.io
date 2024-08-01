@@ -343,37 +343,45 @@ const modeIntervals = {
 
                 // Determine if it's a chord tone
                 let isChordTone = false;
-                switch(mode) {
-                    case 'Locrian':
-                    case 'Locrian♮2':
-                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
-                        break;
-                    case 'AlteredDominant':
-                    case 'SuperLocrian':
-                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♯4/♭5, ♭7
-                        break;
-                    case 'IonianAugmented':
-                        isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
-                        break;
-                    case 'Locrian♮6':
-                        isChordTone = [0, 3, 6, 9, 10].includes(interval); // Root, ♭3, ♭5, 6, ♭7
-                        break;
-                    case 'MajorBebop':
-                        isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
-                        break;
-                    case 'DominantBebop':
-                        isChordTone = [0, 4, 7, 10, 11].includes(interval); // Root, 3, 5, ♭7, 7
-                        break;
-                    case 'MinorBebop♮7':
-                    case 'MinorBebop♮3':
-                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
-                        break;
-                    default:
-                        isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Root, 3, ♯3, 5, ♭7, 7
-                    case 'WholeTone':
-        isChordTone = [0, 4, 8].includes(interval); // Root, 3, #5
-        break;
-                }
+    switch(mode) {
+        case 'Ionian':
+            isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
+            break;
+        case 'Dorian':
+            isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
+            break;
+        case 'Phrygian':
+            isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
+            break;
+        case 'Lydian':
+            isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
+            break;
+        case 'Mixolydian':
+            isChordTone = [0, 4, 7, 10].includes(interval); // Root, 3, 5, ♭7
+            break;
+        case 'Aeolian':
+            isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
+            break;
+        case 'Locrian':
+        case 'Locrian♮2':
+            isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
+            break;
+        case 'AlteredDominant':
+        case 'SuperLocrian':
+            isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♯4/♭5, ♭7
+            break;
+        case 'IonianAugmented':
+            isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
+            break;
+        case 'Locrian♮6':
+            isChordTone = [0, 3, 6, 9, 10].includes(interval); // Root, ♭3, ♭5, 6, ♭7
+            break;
+        case 'WholeTone':
+            isChordTone = [0, 4, 8].includes(interval); // Root, 3, #5
+            break;
+        default:
+            isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Default case for other scales
+    }
 
                 // Skip non-chord tones if in chord tone view
                 if (view === 'chordTones' && !isChordTone) {
