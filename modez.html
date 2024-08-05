@@ -221,74 +221,103 @@ const modeIntervals = {
     });
 }
       
-        function createFretboard() {
-            const fretboard = document.getElementById('fretboard');
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('width', '1300');
-            svg.setAttribute('height', '320');
-            svg.setAttribute('viewBox', '0 0 1300 320');
+       function createFretboard() {
+    const fretboard = document.getElementById('fretboard');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '1300');
+    svg.setAttribute('height', '320');
+    svg.setAttribute('viewBox', '0 0 1300 320');
 
-            // Draw frets
-            for (let i = 0; i <= 24; i++) {
-                const x = i * 50 + 50;
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', x);
-                line.setAttribute('y1', '60');
-                line.setAttribute('x2', x);
-                line.setAttribute('y2', '300');
-                line.setAttribute('stroke', 'var(--line-color)');
-                line.setAttribute('stroke-width', i === 0 ? '4' : '1');
-                svg.appendChild(line);
+    // Draw frets
+    for (let i = 0; i <= 24; i++) {
+        const x = i * 50 + 50;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x);
+        line.setAttribute('y1', '60');
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', '300');
+        line.setAttribute('stroke', 'var(--line-color)');
+        line.setAttribute('stroke-width', i === 0 ? '4' : '1');
+        svg.appendChild(line);
 
-                // Add fret numbers on top and bottom
-                if (i > 0) {
-                    const topText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    topText.setAttribute('x', x);
-                    topText.setAttribute('y', '30');
-                    topText.setAttribute('fill', 'var(--text-color)');
-                    topText.setAttribute('font-size', '12');
-                    topText.setAttribute('text-anchor', 'middle');
-                    topText.textContent = i;
-                    svg.appendChild(topText);
+        // Add fret numbers on top and bottom
+        if (i > 0) {
+            const topText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            topText.setAttribute('x', x);
+            topText.setAttribute('y', '30');
+            topText.setAttribute('fill', 'var(--text-color)');
+            topText.setAttribute('font-size', '12');
+            topText.setAttribute('text-anchor', 'middle');
+            topText.textContent = i;
+            svg.appendChild(topText);
 
-                    const bottomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    bottomText.setAttribute('x', x);
-                    bottomText.setAttribute('y', '315');
-                    bottomText.setAttribute('fill', 'var(--text-color)');
-                    bottomText.setAttribute('font-size', '12');
-                    bottomText.setAttribute('text-anchor', 'middle');
-                    bottomText.textContent = i;
-                    svg.appendChild(bottomText);
-                }
-            }
-
-            // Draw strings
-            for (let i = 0; i < 6; i++) {
-                const y = i * 48 + 60;
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', '50');
-                line.setAttribute('y1', y);
-                line.setAttribute('x2', '1275');
-                line.setAttribute('y2', y);
-                line.setAttribute('stroke', 'var(--line-color)');
-                svg.appendChild(line);
-
-                // Add string notes
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', '25');
-                text.setAttribute('y', y + 5);
-                text.setAttribute('fill', 'var(--text-color)');
-                text.setAttribute('font-size', '14');
-                text.setAttribute('text-anchor', 'middle');
-                text.textContent = strings[i];
-                svg.appendChild(text);
-            }
-
-            fretboard.innerHTML = '';
-            fretboard.appendChild(svg);
-            return svg;
+            const bottomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            bottomText.setAttribute('x', x);
+            bottomText.setAttribute('y', '315');
+            bottomText.setAttribute('fill', 'var(--text-color)');
+            bottomText.setAttribute('font-size', '12');
+            bottomText.setAttribute('text-anchor', 'middle');
+            bottomText.textContent = i;
+            svg.appendChild(bottomText);
         }
+    }
 
+    // Draw strings
+    for (let i = 0; i < 6; i++) {
+        const y = i * 48 + 60;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '50');
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', '1275');
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', 'var(--line-color)');
+        svg.appendChild(line);
+
+        // Add string notes
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '25');
+        text.setAttribute('y', y + 5);
+        text.setAttribute('fill', 'var(--text-color)');
+        text.setAttribute('font-size', '14');
+        text.setAttribute('text-anchor', 'middle');
+        text.textContent = strings[i];
+        svg.appendChild(text);
+    }
+
+    // Add fret markers
+    const markerFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21];
+    markerFrets.forEach(fret => {
+        const x = fret * 50 + 50;
+        const y = 180; // Center of the fretboard
+        const size = 10; // Size of the diamond
+
+        if (fret === 12) {
+            // Add two diamonds for the 12th fret
+            const topDiamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            topDiamond.setAttribute('d', `M ${x} ${y-size-48} L ${x+size} ${y-48} L ${x} ${y+size-48} L ${x-size} ${y-48} Z`);
+            topDiamond.setAttribute('fill', '#e0e0e0'); // Light grey color
+            topDiamond.setAttribute('stroke', 'none');
+            svg.appendChild(topDiamond);
+
+            const bottomDiamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            bottomDiamond.setAttribute('d', `M ${x} ${y-size+48} L ${x+size} ${y+48} L ${x} ${y+size+48} L ${x-size} ${y+48} Z`);
+            bottomDiamond.setAttribute('fill', '#e0e0e0'); // Light grey color
+            bottomDiamond.setAttribute('stroke', 'none');
+            svg.appendChild(bottomDiamond);
+        } else {
+            // Single diamond for other frets
+            const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            diamond.setAttribute('d', `M ${x} ${y-size} L ${x+size} ${y} L ${x} ${y+size} L ${x-size} ${y} Z`);
+            diamond.setAttribute('fill', '#e0e0e0'); // Light grey color
+            diamond.setAttribute('stroke', 'none');
+            svg.appendChild(diamond);
+        }
+    });
+
+    fretboard.innerHTML = '';
+    fretboard.appendChild(svg);
+    return svg;
+}
    function updateFretboard() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
