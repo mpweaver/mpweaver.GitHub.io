@@ -94,6 +94,9 @@
     <option value="PentatonicMinor">Pentatonic Minor</option>
     <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
     <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
+          <option value="HanKumoi">Han Kumoi Pentatonic</option>
+          <option value="Insen">Insen Pentatonic</option>
+    <option value="Hirajoshi">Hirajoshi Pentatonic</option>
          <option value="MajorBebop">Major Bebop</option>
     <option value="DominantBebop">Dominant Bebop</option>
      <option value="MinorBebop♮7">Minor Bebop (Dorian ♮7)</option>
@@ -162,6 +165,9 @@ const modeIntervals = {
     'PentatonicMinor': [0, 3, 5, 7, 10],
     'PentatonicMajorBlues': [0, 2, 3, 4, 7, 9],
     'PentatonicMinorBlues': [0, 3, 5, 6, 7, 10],
+  'HanKumoi': [0, 2, 5, 7, 8],
+  'Insen': [0, 1, 5, 7, 10],
+    'Hirajoshi': [0, 2, 3, 7, 8],
   'MajorBebop': [0, 2, 4, 5, 7, 8, 9, 11],
     'DominantBebop': [0, 2, 4, 5, 7, 9, 10, 11],
     'MinorBebop♮7': [0, 2, 3, 5, 7, 9, 10, 11],
@@ -178,20 +184,21 @@ const modeIntervals = {
 
         const chordToneIntervals = [0, 4, 7, 11]; // Root, 3rd, 5th, 7th
 
-     function getScaleNotes(key, mode) {
+    function getScaleNotes(key, mode) {
     const startIndex = notes.indexOf(key);
     const scaleIntervals = modeIntervals[mode];
     
     const useSharp = (
-        [   ].includes(key) && 
-        !mode.includes('Blues') && 
-        !mode.includes('Pentatonic') && 
-     
-      !mode.includes('Bebop')  && 
+        [].includes(key) &&
+        !mode.includes('Blues') &&
+        !mode.includes('Pentatonic') &&
+        !mode.includes('Bebop') &&
         mode !== 'Phrygian' &&
-        mode !== 'Locrian'  &&
-      mode !== 'WholeTone'
-    ) //|| mode.includes('Lydian') ;
+        mode !== 'Locrian' &&
+        mode !== 'WholeTone' &&
+        mode !== 'Insen' &&
+        mode !== 'Hirajoshi'
+    ) || mode.includes('Lydian');
 
     return scaleIntervals.map(interval => {
         const noteIndex = (startIndex + interval) % 12;
@@ -201,11 +208,19 @@ const modeIntervals = {
             const sharpIndex = (noteIndex + 11) % 12;
             note = notes[sharpIndex] + '#';
         }
+
+        // Special handling for Insen and Hirajoshi scales
+        if (mode === 'Insen' || mode === 'Hirajoshi') {
+            if (note.includes('#')) {
+                const flatIndex = (noteIndex + 1) % 12;
+                note = notes[flatIndex] + 'b';
+            }
+        }
         
         return note;
     });
 }
-
+      
         function createFretboard() {
             const fretboard = document.getElementById('fretboard');
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -289,7 +304,7 @@ const modeIntervals = {
     const svg = createFretboard();
 
     const useSharp = (
-        ['D', 'E', 'G', 'A', 'B'].includes(key) &&
+        [].includes(key) &&
         !mode.includes('Blues') &&
         !mode.includes('Pentatonic') &&
         !mode.includes('Bebop') &&
