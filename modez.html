@@ -12,10 +12,11 @@
             --line-color: #000000;
             --highlight-color: #ff0000;
             --chord-tone-color: #0000ff;
+            --non-chord-tone-color: #000000;
         }
         body {
             font-family: Arial, sans-serif;
-            max-width: 1300px;
+            max-width: 100%;
             margin: 0 auto;
             padding: 20px;
             background-color: var(--bg-color);
@@ -26,8 +27,9 @@
         }
         .controls {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
             margin-bottom: 20px;
         }
         select {
@@ -43,71 +45,106 @@
             font-size: 18px;
             margin-bottom: 20px;
         }
-      :root {
-    /* ... existing variables ... */
-    --non-chord-tone-color: #000000;
-}
+        #legend {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #legend ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .legend-circle {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .root { background-color: var(--highlight-color); }
+        .chord-tone { background-color: var(--chord-tone-color); }
+        .non-chord-tone { background-color: var(--non-chord-tone-color); }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            select {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            #scaleNotes {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>Mode Fretboard Generator</h1>
     <div class="controls">
         <select id="keySelect">
-    <option value="C">C</option>
-    <option value="Db">Db</option>
-    <option value="D">D</option>
-    <option value="Eb">Eb</option>
-    <option value="E">E</option>
-    <option value="F">F</option>
-    <option value="Gb">Gb</option>
-    <option value="G">G</option>
-    <option value="Ab">Ab</option>
-    <option value="A">A</option>
-    <option value="Bb">Bb</option>
-    <option value="B">B</option>
-</select>
+            <option value="C">C</option>
+            <option value="Db">Db</option>
+            <option value="D">D</option>
+            <option value="Eb">Eb</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="Gb">Gb</option>
+            <option value="G">G</option>
+            <option value="Ab">Ab</option>
+            <option value="A">A</option>
+            <option value="Bb">Bb</option>
+            <option value="B">B</option>
         </select>
-       <select id="modeSelect">
-    <option value="Ionian">Ionian (Major)</option>
-    <option value="Dorian">Dorian</option>
-    <option value="Phrygian">Phrygian</option>
-    <option value="Lydian">Lydian</option>
-    <option value="Mixolydian">Mixolydian</option>
-    <option value="Aeolian">Aeolian (Natural Minor)</option>
-    <option value="Locrian">Locrian</option>
-    <option value="MelodicMinor">Melodic Minor</option>
-    <option value="Dorian♭2">Dorian ♭2</option>
-    <option value="LydianAugmented">Lydian Augmented</option>
-    <option value="LydianDominant">Lydian Dominant</option>
-    <option value="Mixolydian♭6">Mixolydian ♭6</option>
-    <option value="Locrian♮2">Locrian ♮2</option>
-    <option value="AlteredDominant">Altered Dominant</option>
-    <option value="HarmonicMinor">Harmonic Minor</option>
-    <option value="Locrian♮6">Locrian ♮6</option>
-    <option value="IonianAugmented">Ionian Augmented</option>
-    <option value="Dorian♯4">Dorian ♯4</option>
-    <option value="PhrygianDominant">Phrygian Dominant</option>
-    <option value="Lydian♯2">Lydian ♯2</option>
-    <option value="SuperLocrian">Super Locrian</option>
-    <!-- New pentatonic scales -->
-    <option value="PentatonicMajor">Pentatonic Major</option>
-    <option value="PentatonicMinor">Pentatonic Minor</option>
-    <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
-    <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
-          <option value="HanKumoi">Han Kumoi Pentatonic</option>
-          <option value="HanKumoiHexatonic">Han Kumoi Hexatonic</option>
-          <option value="Insen">Insen Pentatonic</option>
-    <option value="Hirajoshi">Hirajoshi Pentatonic</option>
-         <option value="Insen♮2">Insen♮2 Pentatonic</option>
-          <option value="Insen♮2Hexatonic">Insen♮2 Hexatatonic</option>
-<option value="Yo">Yo Pentatonic</option>
-         <option value="YoHexatonic">Yo Hexatonic</option>
-         <option value="MajorBebop">Major Bebop</option>
-    <option value="DominantBebop">Dominant Bebop</option>
-     <option value="MinorBebop♮7">Minor Bebop (Dorian ♮7)</option>
-        <option value="MinorBebop♮3">Minor Bebop (Dorian ♮3)</option>
-          <option value="WholeTone">Whole Tone</option>
-</select>
+        <select id="modeSelect">
+            <option value="Ionian">Ionian (Major)</option>
+            <option value="Dorian">Dorian</option>
+            <option value="Phrygian">Phrygian</option>
+            <option value="Lydian">Lydian</option>
+            <option value="Mixolydian">Mixolydian</option>
+            <option value="Aeolian">Aeolian (Natural Minor)</option>
+            <option value="Locrian">Locrian</option>
+            <option value="MelodicMinor">Melodic Minor</option>
+            <option value="Dorian♭2">Dorian ♭2</option>
+            <option value="LydianAugmented">Lydian Augmented</option>
+            <option value="LydianDominant">Lydian Dominant</option>
+            <option value="Mixolydian♭6">Mixolydian ♭6</option>
+            <option value="Locrian♮2">Locrian ♮2</option>
+            <option value="AlteredDominant">Altered Dominant</option>
+            <option value="HarmonicMinor">Harmonic Minor</option>
+            <option value="Locrian♮6">Locrian ♮6</option>
+            <option value="IonianAugmented">Ionian Augmented</option>
+            <option value="Dorian♯4">Dorian ♯4</option>
+            <option value="PhrygianDominant">Phrygian Dominant</option>
+            <option value="Lydian♯2">Lydian ♯2</option>
+            <option value="SuperLocrian">Super Locrian</option>
+            <option value="PentatonicMajor">Pentatonic Major</option>
+            <option value="PentatonicMinor">Pentatonic Minor</option>
+            <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
+            <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
+            <option value="HanKumoi">Han Kumoi Pentatonic</option>
+            <option value="HanKumoiHexatonic">Han Kumoi Hexatonic</option>
+            <option value="Insen">Insen Pentatonic</option>
+            <option value="Hirajoshi">Hirajoshi Pentatonic</option>
+            <option value="Insen♮2">Insen♮2 Pentatonic</option>
+            <option value="Insen♮2Hexatonic">Insen♮2 Hexatatonic</option>
+            <option value="Yo">Yo Pentatonic</option>
+            <option value="YoHexatonic">Yo Hexatonic</option>
+            <option value="MajorBebop">Major Bebop</option>
+            <option value="DominantBebop">Dominant Bebop</option>
+            <option value="MinorBebop♮7">Minor Bebop (Dorian ♮7)</option>
+            <option value="MinorBebop♮3">Minor Bebop (Dorian ♮3)</option>
+            <option value="WholeTone">Whole Tone</option>
         </select>
         <select id="themeSelect">
             <option value="light">Light Mode</option>
@@ -121,15 +158,7 @@
     <h2 id="currentMode"></h2>
     <p id="scaleNotes"></p>
     <div id="fretboard"></div>
-  
-    <div class="controls">
-        <!-- Existing controls -->
-    </div>
-    <h2 id="currentMode"></h2>
-    <p id="scaleNotes"></p>
-    <div id="fretboard"></div>
 
-    <!-- New legend -->
     <div id="legend">
         <h3>Legend:</h3>
         <ul>
@@ -208,7 +237,7 @@ const modeIntervals = {
         mode !== 'WholeTone' &&
         mode !== 'Insen' &&
         mode !== 'Hirajoshi'
-    ) || mode.includes('Lydian');
+    ) //|| mode.includes('Lydian');
 
     return scaleIntervals.map(interval => {
         const noteIndex = (startIndex + interval) % 12;
@@ -350,7 +379,7 @@ const modeIntervals = {
         mode !== 'Phrygian' &&
         mode !== 'Locrian' &&
         mode !== 'WholeTone'
-    ) || mode.includes('Lydian');
+    ) //|| mode.includes('Lydian');
 
     for (let string = 0; string < 6; string++) {
         let startNote = notes.indexOf(strings[string]);
