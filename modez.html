@@ -1,233 +1,259 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mode Fretboard Generator</title>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --line-color: #000000;
-            --highlight-color: #ff0000;
-            --chord-tone-color: #0000ff;
-            --non-chord-tone-color: #000000;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        h1, h2 {
-            text-align: center;
-        }
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        select {
-            padding: 5px;
-            font-size: 16px;
-        }
-        #fretboard {
-            width: 100%;
-            overflow-x: auto;
-        }
-        #scaleNotes {
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-        #legend {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #legend ul {
-            list-style-type: none;
-            padding: 0;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-        .legend-circle {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-        .root { background-color: var(--highlight-color); }
-        .chord-tone { background-color: var(--chord-tone-color); }
-        .non-chord-tone { background-color: var(--non-chord-tone-color); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mode Fretboard Generator</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --line-color: #000000;
+      --highlight-color: #ff0000;
+      --chord-tone-color: #0000ff;
+      --non-chord-tone-color: #000000;
+    }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-            h2 {
-                font-size: 20px;
-            }
-            select {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-            #scaleNotes {
-                font-size: 16px;
-            }
-        }
-    </style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    #fretboard {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #scaleNotes {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    #legend {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #legend ul {
+      list-style-type: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .legend-circle {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .root {
+      background-color: var(--highlight-color);
+    }
+
+    .chord-tone {
+      background-color: var(--chord-tone-color);
+    }
+
+    .non-chord-tone {
+      background-color: var(--non-chord-tone-color);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      select {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      #scaleNotes {
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Mode Fretboard Generator</h1>
-    <div class="controls">
-        <select id="keySelect">
-            <option value="C">C</option>
-            <option value="Db">Db</option>
-            <option value="D">D</option>
-            <option value="Eb">Eb</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="Gb">Gb</option>
-            <option value="G">G</option>
-            <option value="Ab">Ab</option>
-            <option value="A">A</option>
-            <option value="Bb">Bb</option>
-            <option value="B">B</option>
-        </select>
-        <select id="modeSelect">
-            <option value="Ionian">Ionian (Major)</option>
-            <option value="Dorian">Dorian</option>
-            <option value="Phrygian">Phrygian</option>
-            <option value="Lydian">Lydian</option>
-            <option value="Mixolydian">Mixolydian</option>
-            <option value="Aeolian">Aeolian (Natural Minor)</option>
-            <option value="Locrian">Locrian</option>
-            <option value="MelodicMinor">Melodic Minor</option>
-            <option value="Dorian♭2">Dorian ♭2</option>
-            <option value="LydianAugmented">Lydian Augmented</option>
-            <option value="LydianDominant">Lydian Dominant</option>
-            <option value="Mixolydian♭6">Mixolydian ♭6</option>
-            <option value="Locrian♮2">Locrian ♮2</option>
-            <option value="AlteredDominant">Altered Dominant</option>
-            <option value="HarmonicMinor">Harmonic Minor</option>
-            <option value="Locrian♮6">Locrian ♮6</option>
-            <option value="IonianAugmented">Ionian Augmented</option>
-            <option value="Dorian♯4">Dorian ♯4</option>
-            <option value="PhrygianDominant">Phrygian Dominant</option>
-            <option value="Lydian♯2">Lydian ♯2</option>
-            <option value="SuperLocrian">Super Locrian</option>
-            <option value="PentatonicMajor">Pentatonic Major</option>
-            <option value="PentatonicMinor">Pentatonic Minor</option>
-            <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
-            <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
-            <option value="HanKumoi">Han Kumoi Pentatonic</option>
-            <option value="HanKumoiHexatonic">Han Kumoi Hexatonic</option>
-            <option value="Insen">Insen Pentatonic</option>
-            <option value="Hirajoshi">Hirajoshi Pentatonic</option>
-            <option value="Insen♮2">Insen♮2 Pentatonic</option>
-            <option value="Insen♮2Hexatonic">Insen♮2 Hexatatonic</option>
-            <option value="Yo">Yo Pentatonic</option>
-            <option value="YoHexatonic">Yo Hexatonic</option>
-            <option value="MajorBebop">Major Bebop</option>
-            <option value="DominantBebop">Dominant Bebop</option>
-            <option value="MinorBebop♮7">Minor Bebop (Dorian ♮7)</option>
-            <option value="MinorBebop♮3">Minor Bebop (Dorian ♮3)</option>
-            <option value="WholeTone">Whole Tone</option>
-        </select>
-        <select id="themeSelect">
-            <option value="light">Light Mode</option>
-            <option value="dark">Dark Mode</option>
-        </select>
-        <select id="viewSelect">
-            <option value="diatonic">Diatonic</option>
-            <option value="chordTones">Chord Tones</option>
-        </select>
-    </div>
-    <h2 id="currentMode"></h2>
-    <p id="scaleNotes"></p>
-    <div id="fretboard"></div>
+  <h1>Mode Fretboard Generator</h1>
+  <div class="controls">
+    <select id="keySelect">
+      <option value="C">C</option>
+      <option value="Db">Db</option>
+      <option value="D">D</option>
+      <option value="Eb">Eb</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+      <option value="Gb">Gb</option>
+      <option value="G">G</option>
+      <option value="Ab">Ab</option>
+      <option value="A">A</option>
+      <option value="Bb">Bb</option>
+      <option value="B">B</option>
+    </select>
+    <select id="modeSelect">
+      <option value="Ionian">Ionian (Major)</option>
+      <option value="Dorian">Dorian</option>
+      <option value="Phrygian">Phrygian</option>
+      <option value="Lydian">Lydian</option>
+      <option value="Mixolydian">Mixolydian</option>
+      <option value="Aeolian">Aeolian (Natural Minor)</option>
+      <option value="Locrian">Locrian</option>
+      <option value="MelodicMinor">Melodic Minor</option>
+      <option value="Dorian♭2">Dorian ♭2</option>
+      <option value="LydianAugmented">Lydian Augmented</option>
+      <option value="LydianDominant">Lydian Dominant</option>
+      <option value="Mixolydian♭6">Mixolydian ♭6</option>
+      <option value="Locrian♮2">Locrian ♮2</option>
+      <option value="AlteredDominant">Altered Dominant</option>
+      <option value="HarmonicMinor">Harmonic Minor</option>
+      <option value="Locrian♮6">Locrian ♮6</option>
+      <option value="IonianAugmented">Ionian Augmented</option>
+      <option value="Dorian♯4">Dorian ♯4</option>
+      <option value="PhrygianDominant">Phrygian Dominant</option>
+      <option value="Lydian♯2">Lydian ♯2</option>
+      <option value="SuperLocrian">Super Locrian</option>
+      <option value="PentatonicMajor">Pentatonic Major</option>
+      <option value="PentatonicMinor">Pentatonic Minor</option>
+      <option value="PentatonicMajorBlues">Pentatonic Major Blues</option>
+      <option value="PentatonicMinorBlues">Pentatonic Minor Blues</option>
+      <option value="HanKumoi">Han Kumoi Pentatonic</option>
+      <option value="HanKumoiHexatonic">Han Kumoi Hexatonic</option>
+      <option value="Insen">Insen Pentatonic</option>
+      <option value="Hirajoshi">Hirajoshi Pentatonic</option>
+      <option value="Insen♮2">Insen♮2 Pentatonic</option>
+      <option value="Insen♮2Hexatonic">Insen♮2 Hexatatonic</option>
+      <option value="Yo">Yo Pentatonic</option>
+      <option value="YoHexatonic">Yo Hexatonic</option>
+      <option value="MajorBebop">Major Bebop</option>
+      <option value="DominantBebop">Dominant Bebop</option>
+      <option value="MinorBebop♮7">Minor Bebop (Dorian ♮7)</option>
+      <option value="MinorBebop♮3">Minor Bebop (Dorian ♮3)</option>
+      <option value="WholeTone">Whole Tone</option>
+      <option value="HalfWholeDiminished">Half-Whole Diminished</option>
+      <option value="WholeHalfDiminished">Whole-Half Diminished</option>
+    </select>
+    <select id="themeSelect">
+      <option value="light">Light Mode</option>
+      <option value="dark">Dark Mode</option>
+    </select>
+    <select id="instrumentSelect">
+      <option value="guitar">Guitar</option>
+      <option value="bass5">5 String Bass</option>
+      <option value="bass4">4 String Bass</option>
+    </select>
+    <select id="viewSelect">
+      <option value="diatonic">Diatonic</option>
+      <option value="chordTones">Chord Tones</option>
+    </select>
+  </div>
+  <h2 id="currentMode"></h2>
+  <p id="scaleNotes"></p>
+  <div id="fretboard"></div>
 
-    <div id="legend">
-        <h3>Legend:</h3>
-        <ul>
-            <li><span class="legend-circle root"></span> Red indicates the root note</li>
-            <li><span class="legend-circle chord-tone"></span> Blue indicates chord tones</li>
-            <li><span class="legend-circle non-chord-tone"></span> Black/Grey indicates non-chord tones</li>
-            <li>Circled Numbers indicate scale intervals, not fingerings or fret numbers</li>
-        </ul>
-    </div>
+  <div id="legend">
+    <h3>Legend:</h3>
+    <ul>
+      <li><span class="legend-circle root"></span> Red indicates the root note</li>
+      <li><span class="legend-circle chord-tone"></span> Blue indicates chord tones</li>
+      <li><span class="legend-circle non-chord-tone"></span> Black/Grey indicates non-chord tones</li>
+      <li>Circled Numbers indicate scale intervals, not fingerings or fret numbers</li>
+    </ul>
+  </div>
 
-    <script>
-       // ... (previous code remains the same)
-
-const modeIntervals = {
-    'Ionian': [0, 2, 4, 5, 7, 9, 11],
-    'Dorian': [0, 2, 3, 5, 7, 9, 10],
-    'Phrygian': [0, 1, 3, 5, 7, 8, 10],
-    'Lydian': [0, 2, 4, 6, 7, 9, 11],
-    'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
-    'Aeolian': [0, 2, 3, 5, 7, 8, 10],
-    'Locrian': [0, 1, 3, 5, 6, 8, 10],
-    'MelodicMinor': [0, 2, 3, 5, 7, 9, 11],
-    'Dorian♭2': [0, 1, 3, 5, 7, 9, 10],
-    'LydianAugmented': [0, 2, 4, 6, 8, 9, 11],
-    'LydianDominant': [0, 2, 4, 6, 7, 9, 10],
-    'Mixolydian♭6': [0, 2, 4, 5, 7, 8, 10],
-   'Locrian♮2': [0, 2, 3, 5, 6, 8, 10],
-    'AlteredDominant': [0, 1, 3, 4, 6, 8, 10],
-    'HarmonicMinor': [0, 2, 3, 5, 7, 8, 11],
-    'Locrian♮6': [0, 1, 3, 5, 6, 9, 10],
-   'IonianAugmented': [0, 2, 4, 5, 8, 9, 11],
-    'Dorian♯4': [0, 2, 3, 6, 7, 9, 10],
-    'PhrygianDominant': [0, 1, 4, 5, 7, 8, 10],
-    'Lydian♯2': [0, 3, 4, 6, 7, 9, 11],
-     'SuperLocrian': [0, 1, 3, 4, 6, 8, 10],
-    // New pentatonic scales
-    'PentatonicMajor': [0, 2, 4, 7, 9],
-    'PentatonicMinor': [0, 3, 5, 7, 10],
-    'PentatonicMajorBlues': [0, 2, 3, 4, 7, 9],
-    'PentatonicMinorBlues': [0, 3, 5, 6, 7, 10],
-  'HanKumoi': [0, 2, 5, 7, 8],
-  'HanKumoiHexatonic': [0,1, 2, 5, 7, 8],
-  'Insen': [0, 1, 5, 7, 10],
-    'Hirajoshi': [0, 2, 3, 7, 8],
-  'Insen♮2': [0, 2, 5, 7, 10],
-  'Insen♮2Hexatonic': [0,1,2, 5, 7, 10],
-    'Yo': [0, 2, 5, 7, 9],
-  'YoHexatonic': [0,1, 2, 5, 7, 9],
-  'MajorBebop': [0, 2, 4, 5, 7, 8, 9, 11],
-    'DominantBebop': [0, 2, 4, 5, 7, 9, 10, 11],
-    'MinorBebop♮7': [0, 2, 3, 5, 7, 9, 10, 11],
-    'MinorBebop♮3': [0, 2, 3, 4, 5, 7, 9, 10],
-  'WholeTone': [0, 2, 4, 6, 8, 10]
-};
-
-// ... (rest of the JavaScript code remains the same)
-
-        const notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-
-        const strings = ['E', 'B', 'G', 'D', 'A', 'E'];
-        const intervalNames = ['R', '♭2', '2', '♭3', '3', '4', '♭5', '5', '♭6', '6', '♭7', '7'];
-
-        const chordToneIntervals = [0, 4, 7, 11]; // Root, 3rd, 5th, 7th
-
+  <script>
+    // ... (previous code remains the same)
+    const modeIntervals = {
+      'Ionian': [0, 2, 4, 5, 7, 9, 11],
+      'Dorian': [0, 2, 3, 5, 7, 9, 10],
+      'Phrygian': [0, 1, 3, 5, 7, 8, 10],
+      'Lydian': [0, 2, 4, 6, 7, 9, 11],
+      'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
+      'Aeolian': [0, 2, 3, 5, 7, 8, 10],
+      'Locrian': [0, 1, 3, 5, 6, 8, 10],
+      'MelodicMinor': [0, 2, 3, 5, 7, 9, 11],
+      'Dorian♭2': [0, 1, 3, 5, 7, 9, 10],
+      'LydianAugmented': [0, 2, 4, 6, 8, 9, 11],
+      'LydianDominant': [0, 2, 4, 6, 7, 9, 10],
+      'Mixolydian♭6': [0, 2, 4, 5, 7, 8, 10],
+      'Locrian♮2': [0, 2, 3, 5, 6, 8, 10],
+      'AlteredDominant': [0, 1, 3, 4, 6, 8, 10],
+      'HarmonicMinor': [0, 2, 3, 5, 7, 8, 11],
+      'Locrian♮6': [0, 1, 3, 5, 6, 9, 10],
+      'IonianAugmented': [0, 2, 4, 5, 8, 9, 11],
+      'Dorian♯4': [0, 2, 3, 6, 7, 9, 10],
+      'PhrygianDominant': [0, 1, 4, 5, 7, 8, 10],
+      'Lydian♯2': [0, 3, 4, 6, 7, 9, 11],
+      'SuperLocrian': [0, 1, 3, 4, 6, 8, 10],
+      // New pentatonic scales
+      'PentatonicMajor': [0, 2, 4, 7, 9],
+      'PentatonicMinor': [0, 3, 5, 7, 10],
+      'PentatonicMajorBlues': [0, 2, 3, 4, 7, 9],
+      'PentatonicMinorBlues': [0, 3, 5, 6, 7, 10],
+      'HanKumoi': [0, 2, 5, 7, 8],
+      'HanKumoiHexatonic': [0, 1, 2, 5, 7, 8],
+      'Insen': [0, 1, 5, 7, 10],
+      'Hirajoshi': [0, 2, 3, 7, 8],
+      'Insen♮2': [0, 2, 5, 7, 10],
+      'Insen♮2Hexatonic': [0, 1, 2, 5, 7, 10],
+      'Yo': [0, 2, 5, 7, 9],
+      'YoHexatonic': [0, 1, 2, 5, 7, 9],
+      'MajorBebop': [0, 2, 4, 5, 7, 8, 9, 11],
+      'DominantBebop': [0, 2, 4, 5, 7, 9, 10, 11],
+      'MinorBebop♮7': [0, 2, 3, 5, 7, 9, 10, 11],
+      'MinorBebop♮3': [0, 2, 3, 4, 5, 7, 9, 10],
+      'WholeTone': [0, 2, 4, 6, 8, 10],
+      'HalfWholeDiminished': [0, 1, 3, 4, 6, 7, 9, 10],
+      'WholeHalfDiminished': [0, 2, 3, 5, 6, 8, 9, 11]
+    };
+    // ... (rest of the JavaScript code remains the same)
+    const notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const strings = ['E', 'B', 'G', 'D', 'A', 'E'];
+    const intervalNames = ['R', '♭2', '2', '♭3', '3', '4', '♭5', '5', '♭6', '6', '♭7', '7'];
+    const chordToneIntervals = [0, 4, 7, 11]; // Root, 3rd, 5th, 7th
     function getScaleNotes(key, mode) {
-    const startIndex = notes.indexOf(key);
-    const scaleIntervals = modeIntervals[mode];
-    
-    const useSharp = (
+      const startIndex = notes.indexOf(key);
+      const scaleIntervals = modeIntervals[mode];
+      const useSharp = (
         [].includes(key) &&
         !mode.includes('Blues') &&
         !mode.includes('Pentatonic') &&
@@ -237,44 +263,50 @@ const modeIntervals = {
         mode !== 'WholeTone' &&
         mode !== 'Insen' &&
         mode !== 'Hirajoshi'
-    ) //|| mode.includes('Lydian');
-
-    return scaleIntervals.map(interval => {
+      ) //|| mode.includes('Lydian');
+      return scaleIntervals.map(interval => {
         const noteIndex = (startIndex + interval) % 12;
         let note = notes[noteIndex];
-        
         if (useSharp && note.includes('b')) {
-            const sharpIndex = (noteIndex + 11) % 12;
-            note = notes[sharpIndex] + '#';
+          const sharpIndex = (noteIndex + 11) % 12;
+          note = notes[sharpIndex] + '#';
         }
-
         // Special handling for Insen and Hirajoshi scales
         if (mode === 'Insen' || mode === 'Hirajoshi') {
-            if (note.includes('#')) {
-                const flatIndex = (noteIndex + 1) % 12;
-                note = notes[flatIndex] + 'b';
-            }
+          if (note.includes('#')) {
+            const flatIndex = (noteIndex + 1) % 12;
+            note = notes[flatIndex] + 'b';
+          }
         }
-        
         return note;
-    });
-}
-      
-       function createFretboard() {
+      });
+    }
+    const instrumentStrings = {
+      'guitar': ['E', 'B', 'G', 'D', 'A', 'E'],
+      'bass5': ['G', 'D', 'A', 'E', 'B'],
+      'bass4': ['G', 'D', 'A', 'E']
+    };
+
+   function createFretboard() {
     const fretboard = document.getElementById('fretboard');
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const instrument = document.getElementById('instrumentSelect').value;
+    const strings = instrumentStrings[instrument];
+    const stringCount = strings.length;
+
+    const height = stringCount * 48 + 90; // 30 for top numbers, 30 for bottom numbers, 30 padding
     svg.setAttribute('width', '1300');
-    svg.setAttribute('height', '320');
-    svg.setAttribute('viewBox', '0 0 1300 320');
+    svg.setAttribute('height', height.toString());
+    svg.setAttribute('viewBox', `0 0 1300 ${height}`);
 
     // Draw frets
     for (let i = 0; i <= 24; i++) {
         const x = i * 50 + 50;
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', x);
-        line.setAttribute('y1', '60');
+        line.setAttribute('y1', '60'); // Start at the top string
         line.setAttribute('x2', x);
-        line.setAttribute('y2', '300');
+        line.setAttribute('y2', height - 76); // End at the bottom string
         line.setAttribute('stroke', 'var(--line-color)');
         line.setAttribute('stroke-width', i === 0 ? '4' : '1');
         svg.appendChild(line);
@@ -292,7 +324,7 @@ const modeIntervals = {
 
             const bottomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             bottomText.setAttribute('x', x);
-            bottomText.setAttribute('y', '315');
+            bottomText.setAttribute('y', height - 30);
             bottomText.setAttribute('fill', 'var(--text-color)');
             bottomText.setAttribute('font-size', '12');
             bottomText.setAttribute('text-anchor', 'middle');
@@ -302,12 +334,12 @@ const modeIntervals = {
     }
 
     // Draw strings
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < stringCount; i++) {
         const y = i * 48 + 60;
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', '50');
         line.setAttribute('y1', y);
-        line.setAttribute('x2', '1275');
+        line.setAttribute('x2', '1253');
         line.setAttribute('y2', y);
         line.setAttribute('stroke', 'var(--line-color)');
         svg.appendChild(line);
@@ -327,27 +359,27 @@ const modeIntervals = {
     const markerFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21];
     markerFrets.forEach(fret => {
         const x = fret * 50 + 50;
-        const y = 180; // Center of the fretboard
+        const y = height / 2; // Center of the fretboard
         const size = 10; // Size of the diamond
 
         if (fret === 12) {
             // Add two diamonds for the 12th fret
             const topDiamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            topDiamond.setAttribute('d', `M ${x} ${y-size-48} L ${x+size} ${y-48} L ${x} ${y+size-48} L ${x-size} ${y-48} Z`);
-            topDiamond.setAttribute('fill', '#e0e0e0'); // Light grey color
+            topDiamond.setAttribute('d', `M ${x} ${y-size-24} L ${x+size} ${y-24} L ${x} ${y+size-24} L ${x-size} ${y-24} Z`);
+            topDiamond.setAttribute('fill', '#e0e0e0');
             topDiamond.setAttribute('stroke', 'none');
             svg.appendChild(topDiamond);
 
             const bottomDiamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            bottomDiamond.setAttribute('d', `M ${x} ${y-size+48} L ${x+size} ${y+48} L ${x} ${y+size+48} L ${x-size} ${y+48} Z`);
-            bottomDiamond.setAttribute('fill', '#e0e0e0'); // Light grey color
+            bottomDiamond.setAttribute('d', `M ${x} ${y-size+24} L ${x+size} ${y+24} L ${x} ${y+size+24} L ${x-size} ${y+24} Z`);
+            bottomDiamond.setAttribute('fill', '#e0e0e0');
             bottomDiamond.setAttribute('stroke', 'none');
             svg.appendChild(bottomDiamond);
         } else {
             // Single diamond for other frets
             const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             diamond.setAttribute('d', `M ${x} ${y-size} L ${x+size} ${y} L ${x} ${y+size} L ${x-size} ${y} Z`);
-            diamond.setAttribute('fill', '#e0e0e0'); // Light grey color
+            diamond.setAttribute('fill', '#e0e0e0');
             diamond.setAttribute('stroke', 'none');
             svg.appendChild(diamond);
         }
@@ -357,10 +389,11 @@ const modeIntervals = {
     fretboard.appendChild(svg);
     return svg;
 }
-   function updateFretboard() {
+    function updateFretboard() {
     const key = document.getElementById('keySelect').value;
     const mode = document.getElementById('modeSelect').value;
     const view = document.getElementById('viewSelect').value;
+    const instrument = document.getElementById('instrumentSelect').value;
     const currentMode = document.getElementById('currentMode');
     const scaleNotesElement = document.getElementById('scaleNotes');
 
@@ -371,6 +404,8 @@ const modeIntervals = {
 
     const svg = createFretboard();
 
+    const strings = instrumentStrings[instrument];
+
     const useSharp = (
         [].includes(key) &&
         !mode.includes('Blues') &&
@@ -378,10 +413,12 @@ const modeIntervals = {
         !mode.includes('Bebop') &&
         mode !== 'Phrygian' &&
         mode !== 'Locrian' &&
-        mode !== 'WholeTone'
-    ) //|| mode.includes('Lydian');
+        mode !== 'WholeTone' &&
+        mode !== 'Insen' &&
+        mode !== 'Hirajoshi'
+    ) || mode.includes('Lydian');
 
-    for (let string = 0; string < 6; string++) {
+    for (let string = 0; string < strings.length; string++) {
         let startNote = notes.indexOf(strings[string]);
         for (let fret = 0; fret <= 24; fret++) {
             const noteIndex = (startNote + fret) % 12;
@@ -402,7 +439,10 @@ const modeIntervals = {
                         if (interval === 6) intervalName = '♯4';
                         if (interval === 8) intervalName = '♯5';
                         break;
-                    // Add other special cases here as needed
+                    case 'HalfWholeDiminished':
+                    case 'WholeHalfDiminished':
+                        if (interval === 6) intervalName = '♭5';
+                        break;
                 }
 
                 // Handle general sharp/flat conversion
@@ -442,9 +482,8 @@ const modeIntervals = {
                         isChordTone = [0, 4, 7, 11].includes(interval); // Root, 3, 5, 7
                         break;
                     case 'Dorian':
-                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
-                        break;
                     case 'Phrygian':
+                    case 'Aeolian':
                         isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
                         break;
                     case 'Lydian':
@@ -453,16 +492,11 @@ const modeIntervals = {
                     case 'Mixolydian':
                         isChordTone = [0, 4, 7, 10].includes(interval); // Root, 3, 5, ♭7
                         break;
-                    case 'Aeolian':
-                        isChordTone = [0, 3, 7, 10].includes(interval); // Root, ♭3, 5, ♭7
-                        break;
                     case 'Locrian':
                     case 'Locrian♮2':
-                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
-                        break;
                     case 'AlteredDominant':
                     case 'SuperLocrian':
-                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♯4/♭5, ♭7
+                        isChordTone = [0, 3, 6, 10].includes(interval); // Root, ♭3, ♭5, ♭7
                         break;
                     case 'IonianAugmented':
                         isChordTone = [0, 4, 8, 11].includes(interval); // Root, 3, ♯5, 7
@@ -472,6 +506,10 @@ const modeIntervals = {
                         break;
                     case 'WholeTone':
                         isChordTone = [0, 4, 8].includes(interval); // Root, 3, #5
+                        break;
+                    case 'HalfWholeDiminished':
+                    case 'WholeHalfDiminished':
+                        isChordTone = [0, 3, 6, 9].includes(interval); // Root, ♭3, ♭5, ♭7
                         break;
                     default:
                         isChordTone = [0, 3, 4, 7, 10, 11].includes(interval); // Default case for other scales
@@ -510,35 +548,34 @@ const modeIntervals = {
         }
     }
 }
-      
-        function setTheme(theme) {
-    if (theme === 'dark') {
+
+    function setTheme(theme) {
+      if (theme === 'dark') {
         document.documentElement.style.setProperty('--bg-color', '#222222');
         document.documentElement.style.setProperty('--text-color', '#ffffff');
         document.documentElement.style.setProperty('--line-color', '#ffffff');
         document.documentElement.style.setProperty('--highlight-color', '#ff6666');
         document.documentElement.style.setProperty('--chord-tone-color', '#6666ff');
         document.documentElement.style.setProperty('--non-chord-tone-color', '#aaaaaa');
-    } else {
+      } else {
         document.documentElement.style.setProperty('--bg-color', '#ffffff');
         document.documentElement.style.setProperty('--text-color', '#000000');
         document.documentElement.style.setProperty('--line-color', '#000000');
         document.documentElement.style.setProperty('--highlight-color', '#ff0000');
         document.documentElement.style.setProperty('--chord-tone-color', '#0000ff');
         document.documentElement.style.setProperty('--non-chord-tone-color', '#000000');
+      }
+      updateFretboard();
     }
+    document.getElementById('keySelect').addEventListener('change', updateFretboard);
+    document.getElementById('modeSelect').addEventListener('change', updateFretboard);
+    document.getElementById('themeSelect').addEventListener('change', function() {
+      setTheme(this.value);
+    });
+    document.getElementById('viewSelect').addEventListener('change', updateFretboard);
+    document.getElementById('instrumentSelect').addEventListener('change', updateFretboard);
+    // Initial render
+    setTheme('light');
+    text.setAttribute('fill', 'var(--bg-color)');
     updateFretboard();
-}
-
-        document.getElementById('keySelect').addEventListener('change', updateFretboard);
-        document.getElementById('modeSelect').addEventListener('change', updateFretboard);
-        document.getElementById('themeSelect').addEventListener('change', function() {
-            setTheme(this.value);
-        });
-        document.getElementById('viewSelect').addEventListener('change', updateFretboard);
-
-        // Initial render
-        setTheme('light');
-      text.setAttribute('fill', 'var(--bg-color)');
-        updateFretboard();
-    </script>
+  </script>
