@@ -185,6 +185,16 @@
         if (quality.includes('alt')) {
             numeral += 'alt';
         }
+        
+        // Specific adjustments for Lydian, Mixolydian, and Phrygian modes
+        if (mode === 'Lydian' && index === 3) {
+            numeral = '#iv' + numeral.slice(2);  // Replace 'IV' with '#iv'
+        } else if (mode === 'Mixolydian' && index === 6) {
+            numeral = 'bVII';
+        } else if (mode === 'Phrygian' && (index === 1 || index === 2 || index === 6)) {
+            numeral = 'b' + numeral;
+        }
+        
         table += '<td>' + numeral + '</td>';
     });
     table += '</tr>';
