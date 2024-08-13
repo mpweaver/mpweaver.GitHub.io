@@ -1,1 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chord Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .red {
+      color: red;
+    }
+
+    .blue {
+      color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Diatonic Chord Matrix</h1>
+  <label for="key">Key:</label>
+  <select id="key"></select>
+  <label for="mode">Mode:</label>
+  <select id="mode"></select>
+  <div id="output"></div>
+
+  <script>
+    const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const keysFlat = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const modes = {
+      'Ionian Modes': ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian'],
+      'Harmonic Minor Modes': ['Harmonic Minor', 'Locrian ♮6', 'Ionian #5', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Ultralocrian'],
+      'Melodic Minor Modes': ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian ♮2', 'Altered']
+    };
+    const scaleIntervals = {
+      'Ionian': [0, 2, 4, 5, 7, 9, 11],
+      'Dorian': [0, 2, 3, 5, 7, 9, 10],
+      'Phrygian': [0, 1, 3, 5, 7, 8, 10],
+      'Lydian': [0, 2, 4, 6, 7, 9, 11],
+      'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
+      'Aeolian': [0, 2, 3, 5, 7, 8, 10],
+      'Locrian': [0, 1, 3, 5, 6, 8, 10],
+      'Harmonic Minor': [0, 2, 3, 5, 7, 8, 11],
+      'Locrian ♮6': [0, 1, 3, 5, 6, 9, 10],
+      'Ionian #5': [0, 2, 4, 5, 8, 9, 11],
+      'Dorian #4': [0, 2, 3, 6, 7, 9, 10],
+      'Phrygian Dominant': [0, 1, 4, 5, 7, 8, 10],
+      'Lydian #2': [0, 3, 4, 6, 7, 9, 11],
+      'Ultralocrian': [0, 1, 3, 4, 6, 8, 9],
+      'Melodic Minor': [0, 2, 3, 5, 7, 9, 11],
+      'Dorian b2': [0, 1, 3, 5, 7, 9, 10],
+      'Lydian Augmented': [0, 2, 4, 6, 8, 9, 11],
+      'Lydian Dominant': [0, 2, 4, 6, 7, 9, 10],
+      'Mixolydian b6': [0, 2, 4, 5, 7, 8, 10],
+      'Locrian ♮2': [0, 2, 3, 5, 6, 8, 10],
+      'Altered': [0, 1, 3, 4, 6, 8, 10]
+    };
+    const chordQualities = {
+      'Ionian': ['Maj7', 'm7', 'm7', 'Maj7', '7', 'm7', 'm7b5'],
+      'Dorian': ['m7', 'm7', 'Maj7', '7', 'm7', 'm7b5', 'Maj7'],
+      'Phrygian': ['m7', 'Maj7', '7', 'm7', 'm7b5', 'Maj7', 'm7'],
+      'Lydian': ['Maj7', '7', 'm7', 'm7b5', 'Maj7', 'm7', 'm7'],
+      'Mixolydian': ['7', 'm7', 'm7b5', 'Maj7', 'm7', 'm7', 'Maj7'],
+      'Aeolian': ['m7', 'm7b5', 'Maj7', 'm7', 'm7', 'Maj7', '7'],
+      'Locrian': ['m7b5', 'Maj7', 'm7', 'm7', 'Maj7', '7', 'm7'],
+      'Harmonic Minor': ['mMaj7', 'm7b5', 'Maj7#5', 'm7', '7', 'Maj7', 'o7'],
+      'Locrian ♮6': ['m7b5', 'Maj7', '7', 'm7', 'm7b5', 'Maj7', 'm7'],
+      'Ionian #5': ['Maj7#5', '7', 'm7', 'm7b5', 'Maj7', 'm7', 'o7'],
+      'Dorian #4': ['m7', 'm7', 'Maj7#5', '7', 'm7b5', '7', 'Maj7'],
+      'Phrygian Dominant': ['7', 'Maj7#5', '7', 'm7', 'm7b5', 'Maj7', 'm7'],
+      'Lydian #2': ['Maj7', '7#5', 'm7', 'm7b5', '7', 'm7', 'm7'],
+      'Ultralocrian': ['o7', '7', 'm7b5', 'm7b5', '7', 'm7', 'Maj7'],
+      'Melodic Minor': ['mMaj7', 'm7', 'Maj7#5', '7', '7', 'm7b5', 'm7b5'],
+      'Dorian b2': ['m7', 'Maj7', '7', '7', 'm7b5', 'm7b5', 'Maj7'],
+      'Lydian Augmented': ['Maj7#5', '7', '7', 'm7b5', 'm7b5', 'Maj7', 'm7'],
+      'Lydian Dominant': ['7', '7', 'm7b5', 'm7b5', 'Maj7', 'm7', 'm7'],
+      'Mixolydian b6': ['7', 'm7b5', 'm7b5', 'Maj7', 'm7', 'm7', 'Maj7'],
+      'Locrian ♮2': ['m7b5', 'm7b5', 'Maj7', 'm7', 'm7', 'Maj7', '7'],
+      'Altered': ['7alt', 'Maj7', '7', '7', 'Maj7#5', '7', 'm7']
+    };
+
+    function getKeyNotation(keyIndex, mode) {
+      const majorModes = ['Ionian', 'Lydian', 'Ionian #5', 'Lydian #2', 'Lydian Augmented', 'Lydian Dominant'];
+      return majorModes.includes(mode) ? keys[keyIndex] : keysFlat[keyIndex];
+    }
+
+    function populateDropdowns() {
+  const keySelect = document.getElementById('key');
+  const modeSelect = document.getElementById('mode');
+  keys.forEach(key => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = key;
+    keySelect.appendChild(option);
+      });
+      for (const category in modes) {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = category;
+        modes[category].forEach(mode => {
+          const option = document.createElement('option');
+          option.value = mode;
+          option.textContent = mode;
+          optgroup.appendChild(option);
+        });
+        modeSelect.appendChild(optgroup);
+      }
+    }
+
+    function generateOutput() {
+  const key = document.getElementById('key').value;
+  const mode = document.getElementById('mode').value;
+  const output = document.getElementById('output');
+  const keyIndex = keys.indexOf(key);
+  const intervals = scaleIntervals[mode];
+  const qualities = chordQualities[mode];
+
+  function getKeyNotation(keyIndex, mode) {
+    const majorModesWithSharps = ['Ionian', 'Lydian', 'Ionian #5', 'Lydian #2', 'Lydian Augmented', 'Lydian Dominant'];
+    return majorModesWithSharps.includes(mode) ? keys[keyIndex] : keysFlat[keyIndex];
+  }
+
+  const scaleNotes = intervals.map(interval => getKeyNotation((keyIndex + interval) % 12, mode));
+
+  let table = '<table>';
+  table += '<tr><th colspan="8">' + key + ' ' + mode + '</th></tr>';
+
+  // Fret numbers
+  table += '<tr><td></td>';
+  for (let i = 1; i <= 7; i++) {
+    table += '<td class="red">' + i + '</td>';
+  }
+  table += '</tr>';
+
+  // Notes on each string
+  for (let string = 7; string >= 1; string--) {
+    table += '<tr>';
+    table += '<td class="red">' + string + '</td>';
+    for (let degree = 0; degree < 7; degree++) {
+      const noteIndex = (keyIndex + intervals[(degree + string - 1) % 7]) % 12;
+      const note = getKeyNotation(noteIndex, mode);
+      const isHighlighted = string % 2 === 1;
+      table += '<td' + (isHighlighted ? ' class="red"' : '') + '>' + note + '</td>';
+    }
+    table += '</tr>';
+  }
+
+  // Roman numerals
+  table += '<tr><td></td>';
+  qualities.forEach((quality, index) => {
+    let numeral = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][index];
+    if (quality.startsWith('m') || quality.includes('dim') || quality.includes('o')) {
+      numeral = numeral.toLowerCase();
+    }
+    if (quality.includes('b')) {
+      numeral = 'b' + numeral;
+    }
+    if (quality.includes('#')) {
+      numeral = '#' + numeral;
+    }
+    if (quality.includes('dim') || quality.includes('o')) {
+      numeral += '°';
+    }
+    table += '<td>' + numeral + '</td>';
+  });
+  table += '</tr>';
+
+  // Chord qualities
+  table += '<tr><td></td>';
+  scaleNotes.forEach((note, index) => {
+    table += '<td class="blue">' + note + qualities[index] + '</td>';
+  });
+  table += '</tr>';
+
+  // Mode names
+  table += '<tr><td></td>';
+  let modeNames;
+  if (modes['Ionian Modes'].includes(mode)) {
+    modeNames = modes['Ionian Modes'];
+  } else if (modes['Harmonic Minor Modes'].includes(mode)) {
+    modeNames = ['Harmonic Minor', 'Locrian ♮6', 'Ionian #5', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Super Locrian dim7'];
+  } else if (modes['Melodic Minor Modes'].includes(mode)) {
+    modeNames = ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian ♮2', 'Altered'];
+  }
+  
+  const startIndex = modeNames.indexOf(mode);
+  for (let i = 0; i < 7; i++) {
+    const modeName = modeNames[(startIndex + i) % 7];
+    table += '<td class="blue">' + modeName + '</td>';
+  }
+  table += '</tr>';
+
+  table += '</table>';
+  output.innerHTML = table;
+}
+    populateDropdowns();
+    document.getElementById('key').addEventListener('change', generateOutput);
+    document.getElementById('mode').addEventListener('change', generateOutput);
+    generateOutput();
+  </script>
+</body>
+
+</html>
