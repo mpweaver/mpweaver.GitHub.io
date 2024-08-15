@@ -140,110 +140,112 @@
       }
     }
 
-  function generateOutput() {
-    const key = document.getElementById('key').value;
-    const mode = document.getElementById('mode').value;
-    const output = document.getElementById('output');
-    const keyIndex = keys.indexOf(key);
-    const intervals = scaleIntervals[mode];
-    const qualities = chordQualities[mode];
+ function generateOutput() {
+  const key = document.getElementById('key').value;
+  const mode = document.getElementById('mode').value;
+  const output = document.getElementById('output');
+  const keyIndex = keys.indexOf(key);
+  const intervals = scaleIntervals[mode];
+  const qualities = chordQualities[mode];
 
-    function getKeyNotation(keyIndex, mode) {
-        const majorModesWithSharps = ['Ionian', 'Lydian', 'Ionian #5', 'Lydian #2', 'Lydian Augmented', 'Lydian Dominant'];
-        return majorModesWithSharps.includes(mode) ? keys[keyIndex] : keysFlat[keyIndex];
-    }
+  function getKeyNotation(keyIndex, mode) {
+    const majorModesWithSharps = ['Ionian', 'Lydian', 'Ionian #5', 'Lydian #2', 'Lydian Augmented', 'Lydian Dominant'];
+    return majorModesWithSharps.includes(mode) ? keys[keyIndex] : keysFlat[keyIndex];
+  }
 
-    const scaleNotes = intervals.map(interval => getKeyNotation((keyIndex + interval) % 12, mode));
+  const scaleNotes = intervals.map(interval => getKeyNotation((keyIndex + interval) % 12, mode));
 
-    let table = '<table>';
-    table += '<tr><th colspan="8">' + key + ' ' + mode + '</th></tr>';
+  let table = '<table>';
+  table += '<tr><th colspan="8">' + key + ' ' + mode + '</th></tr>';
 
-    // Fret numbers
-    table += '<tr><td></td>';
-    for (let i = 1; i <= 7; i++) {
-        table += '<td class="red">' + i + '</td>';
-    }
-    table += '</tr>';
+  // Fret numbers
+  table += '<tr><td></td>';
+  for (let i = 1; i <= 7; i++) {
+    table += '<td class="red">' + i + '</td>';
+  }
+  table += '</tr>';
 
-    // Notes on each string
-    for (let string = 7; string >= 1; string--) {
-        table += '<tr>';
-        table += '<td class="red">' + string + '</td>';
-        for (let degree = 0; degree < 7; degree++) {
-            const noteIndex = (keyIndex + intervals[(degree + string - 1) % 7]) % 12;
-            const note = getKeyNotation(noteIndex, mode);
-            const isHighlighted = string % 2 === 1;
-            table += '<td' + (isHighlighted ? ' class="red"' : '') + '>' + note + '</td>';
-        }
-        table += '</tr>';
-    }
-
-    // Roman numerals
-    table += '<tr><td></td>';
-    qualities.forEach((quality, index) => {
-        let numeral = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][index];
-        if (quality.startsWith('m') || quality.includes('dim') || quality.includes('o')) {
-            numeral = numeral.toLowerCase();
-        }
-        if (quality.includes('m7b5')) {
-            numeral += 'ø';  // Use half-diminished symbol for m7b5 chords
-        } else if (quality.includes('#5')) {
-            numeral += '+';  // Use plus sign for augmented chords
-        } else if (quality.includes('dim') || quality.includes('o')) {
-            numeral += '°';  // Use diminished symbol for fully diminished chords
-        }
-        if (quality.includes('alt')) {
-            numeral += 'alt';
-        }
-        
-        // Specific adjustments for Lydian, Mixolydian, Phrygian, Aeolian, and Locrian modes
-        if (mode === 'Lydian' && index === 3) {
-            numeral = '#iv' + numeral.slice(2);  // Replace 'IV' with '#iv'
-        } else if (mode === 'Mixolydian' && index === 6) {
-            numeral = 'bVII';
-        } else if (mode === 'Phrygian' && (index === 1 || index === 2 || index === 6)) {
-            numeral = 'b' + numeral;
-        } else if (mode === 'Aeolian' && (index === 2 || index === 5 || index === 6)) {
-            numeral = 'b' + numeral;
-        } else if (mode === 'Locrian') {
-            if (index === 0) {
-                numeral = 'i°';  // Corrected: i diminished for Locrian 1 chord
-            } else if (index !== 3) {
-                numeral = 'b' + numeral;
-            }
-        }
-        
-        table += '<td>' + numeral + '</td>';
-    });
-    table += '</tr>';
-
-    // Chord qualities
-    table += '<tr><td></td>';
-    scaleNotes.forEach((note, index) => {
-        table += '<td class="blue">' + note + qualities[index] + '</td>';
-    });
-    table += '</tr>';
-
-    // Mode names
-    table += '<tr><td></td>';
-    let modeNames;
-    if (modes['Ionian Modes'].includes(mode)) {
-        modeNames = modes['Ionian Modes'];
-    } else if (modes['Harmonic Minor Modes'].includes(mode)) {
-        modeNames = ['Harmonic Minor', 'Locrian ♮6', 'Ionian #5', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Super Locrian dim7'];
-    } else if (modes['Melodic Minor Modes'].includes(mode)) {
-        modeNames = ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian ♮2', 'Altered'];
-    }
-
-    const startIndex = modeNames.indexOf(mode);
-    for (let i = 0; i < 7; i++) {
-        const modeName = modeNames[(startIndex + i) % 7];
-        table += '<td class="blue">' + modeName + '</td>';
+  // Notes on each string
+  for (let string = 7; string >= 1; string--) {
+    table += '<tr>';
+    table += '<td class="red">' + string + '</td>';
+    for (let degree = 0; degree < 7; degree++) {
+      const noteIndex = (keyIndex + intervals[(degree + string - 1) % 7]) % 12;
+      const note = getKeyNotation(noteIndex, mode);
+      const isHighlighted = string % 2 === 1;
+      table += '<td' + (isHighlighted ? ' class="red"' : '') + '>' + note + '</td>';
     }
     table += '</tr>';
+  }
 
-    table += '</table>';
-    output.innerHTML = table;
+  // Roman numerals
+  table += '<tr><td></td>';
+  qualities.forEach((quality, index) => {
+    let numeral = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][index];
+    if (quality.startsWith('m') || quality.includes('dim') || quality.includes('o')) {
+      numeral = numeral.toLowerCase();
+    }
+    if (quality.includes('m7b5')) {
+      numeral += 'ø';  // Use half-diminished symbol for m7b5 chords
+    } else if (quality.includes('#5')) {
+      numeral += '+';  // Use plus sign for augmented chords
+    } else if (quality.includes('dim') || quality.includes('o')) {
+      numeral += '°';  // Use diminished symbol for fully diminished chords
+    }
+    if (quality.includes('alt')) {
+      numeral += 'alt';
+    }
+
+    // Specific adjustments for Lydian, Mixolydian, Phrygian, Aeolian, and Locrian modes
+    if (mode === 'Lydian' && index === 3) {
+      numeral = '#iv' + numeral.slice(2);  // Replace 'IV' with '#iv'
+    } else if (mode === 'Mixolydian' && index === 6) {
+      numeral = 'bVII';
+    } else if (mode === 'Phrygian' && (index === 1 || index === 2 || index === 5 || index === 6)) {
+      numeral = 'b' + numeral;
+    } else if (mode === 'Aeolian' && (index === 2 || index === 5 || index === 6)) {
+      numeral = 'b' + numeral;
+    } else if (mode === 'Locrian') {
+      if (index === 0) {
+        numeral = 'i°';  // Corrected: i diminished for Locrian 1 chord
+      } else if (index !== 3) {
+        numeral = 'b' + numeral;
+      }
+    } else if (mode === 'Harmonic Minor' && index === 5) {
+      numeral = 'b' + numeral;
+    }
+
+    table += '<td>' + numeral + '</td>';
+  });
+  table += '</tr>';
+
+  // Chord qualities
+  table += '<tr><td></td>';
+  scaleNotes.forEach((note, index) => {
+    table += '<td class="blue">' + note + qualities[index] + '</td>';
+  });
+  table += '</tr>';
+
+  // Mode names
+  table += '<tr><td></td>';
+  let modeNames;
+  if (modes['Ionian Modes'].includes(mode)) {
+    modeNames = modes['Ionian Modes'];
+  } else if (modes['Harmonic Minor Modes'].includes(mode)) {
+    modeNames = ['Harmonic Minor', 'Locrian ♮6', 'Ionian #5', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Super Locrian dim7'];
+  } else if (modes['Melodic Minor Modes'].includes(mode)) {
+    modeNames = ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian ♮2', 'Altered'];
+  }
+
+  const startIndex = modeNames.indexOf(mode);
+  for (let i = 0; i < 7; i++) {
+    const modeName = modeNames[(startIndex + i) % 7];
+    table += '<td class="blue">' + modeName + '</td>';
+  }
+  table += '</tr>';
+
+  table += '</table>';
+  output.innerHTML = table;
 }
     populateDropdowns();
     document.getElementById('key').addEventListener('change', generateOutput);
