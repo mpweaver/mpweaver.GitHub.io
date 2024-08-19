@@ -214,6 +214,9 @@
     } else if (mode === 'Harmonic Minor' && index === 5) {
       numeral = 'b' + numeral;
     }
+    else if (mode === 'Dorian' && (index === 2 || index === 6)) {
+  numeral = 'b' + numeral;
+}
 
     table += '<td>' + numeral + '</td>';
   });
