@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Tron Light Cycles - Final Working</title>
+    <title>Tron Light Cycles - Final Working (Hopefully!)</title>
     <style>
         /* CSS */
         body { margin: 0; overflow: hidden; background-color: #000011; color: #fff; }
@@ -71,8 +71,8 @@
 
         // --- Constants ---
         const GRID_SIZE = 100, GRID_CELL_SIZE = 2, ARENA_SIZE = GRID_SIZE * GRID_CELL_SIZE;
-        // *** Define EFFECTIVE_SIZE (used for trail dimensions if needed, though not directly for camera anymore) ***
-        const EFFECTIVE_SIZE = GRID_CELL_SIZE;
+        // *** Define EFFECTIVE_SIZE based on GRID_CELL_SIZE ***
+        const EFFECTIVE_SIZE = GRID_CELL_SIZE; // For trail width/height, etc.
         const CYCLE_SPEED = GRID_CELL_SIZE * 8, PLAYER_COLOR = 0x00ffff, OPPONENT_COLOR = 0xffa500, TRAIL_HEIGHT = 1.5;
         const CYCLE_MODEL_URL = 'Elitelightcycletest.glb', CYCLE_SCALE = 8;
         const ENGINE_SOUND_URL = 'tron engine.mp3', CRASH_SOUND_URL = 'crash.mp3', INTRO_SOUND_URL = 'intro.mp3';
@@ -80,7 +80,7 @@
         const CYCLE_Y_OFFSET = 0.1;
 
         // --- Camera Initial State ---
-        // *** Use ARENA_SIZE for radius calculation ***
+        // *** Calculate radius based on ARENA_SIZE ***
         const cameraInitialRadius = ARENA_SIZE * 0.6; // Adjust multiplier as needed
         const cameraInitialPhi = Math.PI * 0.35;
         const cameraInitialTheta = Math.PI * 0.25;
@@ -110,13 +110,12 @@
             console.log("Initializing Tron Game...");
             scene = new THREE.Scene(); scene.background = new THREE.Color(0x000011); scene.fog = new THREE.Fog(0x000011, ARENA_SIZE * 1.2, ARENA_SIZE * 2.2);
             listener = new THREE.AudioListener(); camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, ARENA_SIZE * 2.5); camera.add(listener);
-            // Set initial camera pos using constants
             setCameraPositionFromSpherical(cameraInitialRadius, cameraInitialPhi, cameraInitialTheta);
             const cameraTarget = new THREE.Vector3(0, 0, 0); camera.lookAt(cameraTarget);
 
             if (!canvas) { console.error("Canvas element not found!"); return; } renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(window.devicePixelRatio); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.8;
             controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = 0.05; controls.target.copy(cameraTarget); controls.maxPolarAngle = Math.PI / 2 - 0.05; controls.minDistance = GRID_CELL_SIZE * 5; controls.maxDistance = ARENA_SIZE * 1.8; controls.enablePan = true;
-            controls.update(); // Sync controls initially
+            controls.update();
 
             controls.addEventListener('start', () => { isUserInteracting = true; }); controls.addEventListener('end', () => { isUserInteracting = false; });
             renderer.domElement.addEventListener('wheel', () => { isUserInteracting = true; }, { passive: true }); renderer.domElement.addEventListener('touchstart', () => { isUserInteracting = true; }, { passive: true });
@@ -183,6 +182,10 @@
                 else { renderer.render(scene, camera); }
             } catch (error) { console.error("!!! ERROR within animate() loop !!!", error); if (error.stack) console.error("Stack:", error.stack); cancelAnimationFrame(animationFrameId); animationFrameId = null; }
         }
+
+        // --- Helper to set camera position using spherical coordinates ---
+        function setCameraPositionFromSpherical(radius, phi, theta) { const x = radius * Math.sin(phi) * Math.sin(theta); const y = radius * Math.cos(phi); const z = radius * Math.sin(phi) * Math.cos(theta); camera.position.set(x, y, z); autoRotateAngle = theta; }
+
 
         // --- Start ---
         init();
