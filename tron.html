@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>vibecyclez</title>
+    <title>Tron Light Cycles - Responsive UI & Fog</title>
     <style>
-        /* CSS from user's provided working code */
+        /* CSS */
         body { margin: 0; overflow: hidden; background-color: #000011; color: #fff; }
         canvas { display: block; }
+
+        /* Default #ui-controls style (for larger screens) */
         #ui-controls {
             position: absolute; bottom: 10px; left: 10px; z-index: 10; opacity: 0.7; display: none;
             width: 140px; height: 180px;
         }
+        /* Default general button style */
         #ui-controls button {
             font-size: 24px; padding: 15px 20px; margin: 0; background-color: #333; color: #0ff;
             border: 1px solid #0ff; border-radius: 8px; cursor: pointer; touch-action: none;
@@ -20,17 +23,18 @@
             height: 60px; box-sizing: border-box; display: flex; justify-content: center; align-items: center;
         }
         #ui-controls button:active { background-color: #555; }
+        /* Default Specific Button Positioning */
         #btn-up { top: 0; left: 50%; transform: translateX(-50%); }
         #btn-left { top: 65px; left: 0; }
         #btn-right { top: 65px; right: 0; }
         #btn-down { top: 130px; left: 50%; transform: translateX(-50%); }
 
-        /* USER'S Volume Control Style Fix */
+        /* Default Volume control positioning */
         #volume-control {
-            position: absolute; bottom: 220px; left: 5px; z-index: 10;
-            background-color: rgba(0, 0, 0, 0.75); padding: 4px 50px; border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2); display: none; color: #ddd;
-            font-family: sans-serif; font-size: 0.9em; width: 158px; box-sizing: border-box;
+            position: absolute; bottom: 220px; /* Default position */
+            left: 5px; z-index: 10; background-color: rgba(0, 0, 0, 0.75);
+            padding: 4px 50px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none; color: #ddd; font-family: sans-serif; font-size: 0.9em; width: 158px; box-sizing: border-box;
         }
         #volume-control label { margin-right: 8px; vertical-align: middle; }
         #volume-control input[type=range] { vertical-align: middle; cursor: pointer; width: 100px; }
@@ -43,12 +47,64 @@
         #ready-screen { color: #00ccff; border: 2px solid #00ccff; } #ready-screen button { color: #00ccff; border: 1px solid #00ccff; }
         #game-over-screen { color: #ff5500; border: 2px solid #ff5500; display: none; } #game-over-screen button { color: #ff5500; border: 1px solid #ff5500; }
         #status { position: absolute; bottom: 10px; left: 10px; color: #ddd; font-family: sans-serif; font-size: 0.9em; background: rgba(0,0,0,0.6); padding: 5px 8px; border-radius: 4px; min-height: 1.2em; z-index: 9; visibility: hidden; }
+
+        /* --- ADD Media Query for Smaller Screens --- */
+        @media (max-width: 768px) {
+            /* Smaller container for the D-Pad */
+            #ui-controls {
+                width: 110px;  /* Adjust: 45px + gap + 45px approx */
+                height: 145px; /* Adjust: 45px + gap + 45px + gap + 45px approx */
+                left: 5px; /* Slightly less offset */
+                bottom: 5px;
+            }
+            /* Smaller buttons */
+            #ui-controls button {
+                width: 45px;
+                height: 45px;
+                font-size: 18px; /* Smaller icon */
+                padding: 0; /* Remove padding if using fixed size */
+            }
+            /* Adjusted absolute positions for smaller buttons */
+            #btn-up {
+                top: 0; left: 50%; transform: translateX(-50%);
+            }
+            #btn-left {
+                top: 50px; /* 45px height + 5px gap */
+                left: 0;
+            }
+            #btn-right {
+                top: 50px; /* 45px height + 5px gap */
+                right: 0;
+            }
+            #btn-down {
+                 top: 100px; /* 50px + 45px height + 5px gap */
+                 left: 50%; transform: translateX(-50%);
+            }
+
+            /* Adjust Volume position based on smaller controls */
+             #volume-control {
+                bottom: 160px; /* Position above the shorter ui-controls container */
+                left: 5px;
+                padding: 4px 10px; /* Slightly less padding */
+                width: auto; /* Let width be more flexible */
+             }
+             #volume-control input[type=range] {
+                 width: 80px; /* Smaller slider */
+             }
+              #status {
+                  font-size: 0.8em; /* Slightly smaller status */
+                  bottom: 5px;
+                  left: 5px;
+              }
+        }
+        /* --- END Media Query --- */
+
     </style>
 </head>
 <body>
-    <!-- HTML with updated ready screen text -->
+    <!-- HTML -->
     <div id="ready-screen" class="overlay-screen">
-        <h2>Vibecyclez</h2>
+        <h2>Vibecycle</h2>
         <span id="ready-message">
             Use Arrow Keys (or W/A/S/D) to control your Vibecycle.<br>
             Use Mouse/Trackpad to Pan & Zoom.<br><br>
@@ -74,7 +130,6 @@
     <div id="status">Status: Loading...</div>
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Import Map -->
     <script type="importmap">
         { "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
@@ -92,12 +147,11 @@
 
         // --- Constants ---
         const GRID_SIZE = 100, GRID_CELL_SIZE = 2, ARENA_SIZE = GRID_SIZE * GRID_CELL_SIZE;
-        const CYCLE_SPEED = GRID_CELL_SIZE * 11, PLAYER_COLOR = 0x00ffff, OPPONENT_COLOR = 0xffa500, TRAIL_HEIGHT = 1.5;
+        const CYCLE_SPEED = GRID_CELL_SIZE * 11, PLAYER_COLOR = 0x0000ff, OPPONENT_COLOR = 0xffa500, TRAIL_HEIGHT = 1.5;
         const CYCLE_MODEL_URL = 'playerbike4.glb', CYCLE_SCALE = 8;
-        const ENGINE_SOUND_URL = 'tron engine sound.mp3', CRASH_SOUND_URL = 'crash.mp3', INTRO_SOUND_URL = 'intro.mp3';
+        const ENGINE_SOUND_URL = 'tron engine.mp3', CRASH_SOUND_URL = 'crash.mp3', INTRO_SOUND_URL = 'intro.mp3';
         const BLOOM_STRENGTH = 1.2, BLOOM_RADIUS = 0.6, BLOOM_THRESHOLD = 0.85;
-        // *** Added constant for vertical offset ***
-        const CYCLE_Y_OFFSET = 0.1; // Adjust this value if needed (e.g., 0.2, 0.5)
+        const CYCLE_Y_OFFSET = 0.1;
 
         // --- Game State ---
         let scene, camera, renderer, controls, composer;
@@ -120,24 +174,23 @@
         // --- Initialization ---
         async function init() {
             console.log("Initializing Tron Game...");
-            scene = new THREE.Scene();
-            // *** Set desired dark blue background ***
-            scene.background = new THREE.Color(0x000011); // Dark Blue/Black
-            scene.fog = new THREE.Fog(0x000011, ARENA_SIZE * 0.8, ARENA_SIZE * 1.6); // Match fog
+            scene = new THREE.Scene(); scene.background = new THREE.Color(0x000011);
+            // *** Adjusted Fog Settings ***
+            scene.fog = new THREE.Fog(0x000011, ARENA_SIZE * 1.2, ARENA_SIZE * 2.2); // Pushed further
 
             listener = new THREE.AudioListener(); camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, ARENA_SIZE * 2.5); camera.add(listener); camera.position.set(0, ARENA_SIZE * 0.5, ARENA_SIZE * 0.5); camera.lookAt(0, 0, 0);
             if (!canvas) { console.error("Canvas element not found!"); return; } renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(window.devicePixelRatio); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.8;
             controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = 0.05; controls.target.set(0, 0, 0); controls.maxPolarAngle = Math.PI / 2 - 0.05; controls.minDistance = GRID_CELL_SIZE * 5; controls.maxDistance = ARENA_SIZE * 1.8; controls.enablePan = true;
             setupLighting();
-            createGrid(); // Use simplified grid function (green lines version from before)
+            createGrid(); // Simple white grid
             createArenaBounds();
             audioLoader = new THREE.AudioLoader(); engineSound = new THREE.Audio(listener); crashSound = new THREE.Audio(listener); introSound = new THREE.Audio(listener);
             loadAudio();
             if (listener && volumeSlider) { const initialVolume = parseFloat(volumeSlider.value); listener.setMasterVolume(initialVolume); console.log(`INIT: Initial master volume set to ${initialVolume}`); volumeSlider.addEventListener('input', (event) => { listener.setMasterVolume(parseFloat(event.target.value)); }); console.log("INIT: Volume slider listener attached."); } else { console.error("INIT: Could not find listener or volume slider."); }
             console.log("Setting up post-processing..."); if (!renderer) { console.error("Renderer not initialized!"); return; } composer = new EffectComposer(renderer); if (!scene || !camera) { console.error("Scene or Camera not initialized!"); return; } const renderScene = new RenderPass(scene, camera); composer.addPass(renderScene); const bloomPass = new UnrealBloomPass( new THREE.Vector2(window.innerWidth, window.innerHeight), BLOOM_STRENGTH, BLOOM_RADIUS, BLOOM_THRESHOLD ); composer.addPass(bloomPass); console.log("Post-processing setup complete.");
             updateStatus("Loading Model...");
-            try { console.log("Loading game models..."); [loadedCycleModel] = await Promise.all([ loadGLBModel(CYCLE_MODEL_URL) ]); console.log("All essential models loaded successfully."); /* Don't dispose yet */ } catch (error) { console.error("FATAL: Could not load cycle model.", error); readyMessage.innerHTML = `ERROR loading model:<br>${CYCLE_MODEL_URL}<br>${error.message||'Check console & server.'}`; readyScreen.style.color='#ff0000'; readyScreen.style.borderColor='#ff0000'; startButton.disabled=true; startButton.style.cursor='not-allowed'; startButton.style.opacity='0.5'; readyScreen.style.display='block'; disposeDRACOLoader(); updateStatus("Model Load Error!"); return; }
-            if (loadedCycleModel) { playerCycle = createCycle( -GRID_SIZE / 4, 0, { x: 1, z: 0 }, PLAYER_COLOR, "Player" ); opponentCycle = createCycle( GRID_SIZE / 4, 0, { x: -1, z: 0 }, OPPONENT_COLOR, "Opponent" ); if (!playerCycle || !opponentCycle) { console.error("INIT: Failed to create cycles."); updateStatus("Cycle Creation Error!"); disposeDRACOLoader(); return; } disposeDRACOLoader(); console.log("INIT: Cycles created successfully."); } else { console.error("INIT: Cannot create cycles because loadedCycleModel is missing!"); updateStatus("Model Missing Error!"); disposeDRACOLoader(); return; }
+            try { console.log("Loading game models..."); [loadedCycleModel] = await Promise.all([ loadGLBModel(CYCLE_MODEL_URL) ]); console.log("All essential models loaded successfully."); disposeDRACOLoader(); } catch (error) { console.error("FATAL: Could not load cycle model.", error); readyMessage.innerHTML = `ERROR loading model:<br>${CYCLE_MODEL_URL}<br>${error.message||'Check console & server.'}`; readyScreen.style.color='#ff0000'; readyScreen.style.borderColor='#ff0000'; startButton.disabled=true; startButton.style.cursor='not-allowed'; startButton.style.opacity='0.5'; readyScreen.style.display='block'; disposeDRACOLoader(); updateStatus("Model Load Error!"); return; }
+            if (loadedCycleModel) { playerCycle = createCycle( -GRID_SIZE / 4, 0, { x: 1, z: 0 }, PLAYER_COLOR, "Player" ); opponentCycle = createCycle( GRID_SIZE / 4, 0, { x: -1, z: 0 }, OPPONENT_COLOR, "Opponent" ); if (!playerCycle || !opponentCycle) { console.error("INIT: Failed to create cycles."); updateStatus("Cycle Creation Error!"); disposeDRACOLoader(); return; } console.log("INIT: Cycles created successfully."); } else { console.error("INIT: Cannot create cycles because loadedCycleModel is missing!"); updateStatus("Model Missing Error!"); disposeDRACOLoader(); return; }
             attachEventListeners();
             readyScreen.style.display = 'block'; gameOverScreen.style.display = 'none'; mobileControlsUI.style.display = 'none'; volumeControlDiv.style.display = 'none';
             updateStatus("Ready"); statusDiv.style.visibility = 'visible';
@@ -154,65 +207,18 @@
 
         // --- Game Object Creation ---
         function setupLighting() { const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight); const hemisphereLight = new THREE.HemisphereLight(0xccccff, 0x6666aa, 1.0); scene.add(hemisphereLight); const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); directionalLight.position.set(ARENA_SIZE * 0.3, ARENA_SIZE, ARENA_SIZE * 0.5); scene.add(directionalLight); }
-
-        // *** createGrid Function (Using original GREEN lines for now) ***
-        // This version doesn't add the blue floor, uses scene background
-        function createGrid() {
-             const gridLineColor = 0x008844;   // Medium green (matching previously working version)
-             const centerLineColor = 0x00cc66; // Brighter green
-             console.log(`Creating grid with Center: #${centerLineColor.toString(16)}, Grid: #${gridLineColor.toString(16)}`);
-
-             const gridHelper = new THREE.GridHelper(ARENA_SIZE, GRID_SIZE, centerLineColor, gridLineColor);
-            gridHelper.position.y = -0.01; // Position slightly below cycles' base Y=0
-             if (gridHelper.material) {
-                 gridHelper.material.opacity = 1.0;
-                 gridHelper.material.transparent = false;
-             }
-            scene.add(gridHelper);
-            console.log("Grid helper added.");
-        }
-
-
+        function createGrid() { const gridLineColor = 0x008844; const centerLineColor = 0xffffff; console.log(`Creating grid helper with white lines`); const gridHelper = new THREE.GridHelper(ARENA_SIZE, GRID_SIZE, centerLineColor, gridLineColor); gridHelper.position.y = -0.01; if (gridHelper.material) { gridHelper.material.opacity = 1.0; gridHelper.material.transparent = false; } scene.add(gridHelper); console.log("Grid helper added."); }
         function createArenaBounds() { const hS=ARENA_SIZE/2; const p=[new THREE.Vector3(-hS,0,-hS),new THREE.Vector3(hS,0,-hS),new THREE.Vector3(hS,0,hS),new THREE.Vector3(-hS,0,hS),new THREE.Vector3(-hS,0,-hS)]; const g=new THREE.BufferGeometry().setFromPoints(p); const m=new THREE.LineBasicMaterial({color:0xffffff,linewidth:2}); const l=new THREE.LineSegments(g,m); l.position.y=TRAIL_HEIGHT/2; scene.add(l); }
-
-        // *** createCycle with Y Offset & Rotation Fix ***
-        function createCycle(gridX, gridZ, direction, color, name) {
-            if (!loadedCycleModel) { console.error("Model not loaded!"); return null; } const modelGroup = loadedCycleModel.clone(); let coloredMaterial = false;
-            modelGroup.traverse((child) => { if (child.isMesh && child.material && !coloredMaterial) { if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) { const newMaterial = child.material.clone(); newMaterial.color.setHex(color); newMaterial.emissive.setHex(color); newMaterial.emissiveIntensity = 0.6; child.material = newMaterial; coloredMaterial = true; } else { child.material = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.6, roughness: 0.4, metalness: 0.1 }); coloredMaterial = true; console.warn(`Replaced non-standard material on ${name}`); } } }); if (!coloredMaterial) console.warn(`Could not color model for ${name}`);
-            modelGroup.scale.set(CYCLE_SCALE, CYCLE_SCALE, CYCLE_SCALE);
-            // Apply Y offset
-            modelGroup.position.set(gridX * GRID_CELL_SIZE, CYCLE_Y_OFFSET, gridZ * GRID_CELL_SIZE);
-            modelGroup.name = name;
-            if (direction.x !== 0) modelGroup.rotation.y = -Math.PI / 2 * Math.sign(direction.x); else if (direction.z !== 0) modelGroup.rotation.y = direction.z > 0 ? Math.PI : 0; else modelGroup.rotation.y = 0;
-            modelGroup.rotation.y += Math.PI; // Rotation correction
-            scene.add(modelGroup);
-            return { mesh: modelGroup, gridX: gridX, gridZ: gridZ, direction: { ...direction }, nextDirection: { ...direction }, color: color, name: name, isAlive: true, timeToNextStep: 1 / (CYCLE_SPEED / GRID_CELL_SIZE) };
-        }
-
+        function createCycle(gridX, gridZ, direction, color, name) { if (!loadedCycleModel) { console.error("Model not loaded!"); return null; } const modelGroup = loadedCycleModel.clone(); let coloredMaterial = false; modelGroup.traverse((child) => { if (child.isMesh && child.material && !coloredMaterial) { if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) { const newMaterial = child.material.clone(); newMaterial.color.setHex(color); newMaterial.emissive.setHex(color); newMaterial.emissiveIntensity = 0.6; child.material = newMaterial; coloredMaterial = true; } else { child.material = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.6, roughness: 0.4, metalness: 0.1 }); coloredMaterial = true; console.warn(`Replaced non-standard material on ${name}`); } } }); if (!coloredMaterial) console.warn(`Could not color model for ${name}`); modelGroup.scale.set(CYCLE_SCALE, CYCLE_SCALE, CYCLE_SCALE); modelGroup.position.set(gridX * GRID_CELL_SIZE, CYCLE_Y_OFFSET, gridZ * GRID_CELL_SIZE); modelGroup.name = name; if (direction.x !== 0) modelGroup.rotation.y = -Math.PI / 2 * Math.sign(direction.x); else if (direction.z !== 0) modelGroup.rotation.y = direction.z > 0 ? Math.PI : 0; else modelGroup.rotation.y = 0; modelGroup.rotation.y += Math.PI; scene.add(modelGroup); return { mesh: modelGroup, gridX: gridX, gridZ: gridZ, direction: { ...direction }, nextDirection: { ...direction }, color: color, name: name, isAlive: true, timeToNextStep: 1 / (CYCLE_SPEED / GRID_CELL_SIZE) }; }
         function createTrailSegment(gridX, gridZ, color) { const geometry = new THREE.BoxGeometry(GRID_CELL_SIZE, TRAIL_HEIGHT, GRID_CELL_SIZE); const material = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 1.5, roughness: 0.8, metalness: 0.0 }); const segment = new THREE.Mesh(geometry, material); segment.position.set(gridX * GRID_CELL_SIZE, TRAIL_HEIGHT / 2, gridZ * GRID_CELL_SIZE); scene.add(segment); trailMeshes.push(segment); trails.add(`${gridX},${gridZ}`); }
 
         // --- Game Logic --- (Includes skip intro on restart)
         function startGame(event) { console.log("****************************************"); console.log("START_GAME: 'click' event received..."); console.log(`START_GAME: Current gameState before starting: ${gameState}`); const isInitialStart = (gameState === 'ready'); if (gameState === 'playing' || gameState === 'introPlaying') { console.warn("START_GAME: Already running."); return; } console.log("START_GAME: Hiding screens, showing controls..."); readyScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; mobileControlsUI.style.display = 'block'; volumeControlDiv.style.display = 'block'; console.log("START_GAME: UI updated."); console.log("START_GAME: Stopping existing sounds..."); if (introSound && introSound.isPlaying) { introSound.stop(); introSound.onEnded = null; } if (engineSound && engineSound.isPlaying) { engineSound.stop(); } if (crashSound && crashSound.isPlaying) { crashSound.stop(); } console.log("START_GAME: Sounds stopped."); if (isInitialStart && introBuffer && introSound) { console.log("START_GAME: Initial start, playing intro..."); gameState = 'introPlaying'; try { introSound.setBuffer(introBuffer); introSound.setLoop(false); introSound.setVolume(0.6); introSound.onEnded = () => { console.log("INTRO_ENDED."); introSound.isPlaying = false; introSound.onEnded = null; if (gameState === 'introPlaying') { console.log("INTRO_ENDED: Resetting data..."); resetGameData(); console.log("INTRO_ENDED: Setting state 'playing'."); gameState = 'playing'; if (engineBuffer && engineSound) { console.log("INTRO_ENDED: Starting engine loop..."); if(engineSound.isPlaying) engineSound.stop(); engineSound.setBuffer(engineBuffer); engineSound.setLoop(true); engineSound.setVolume(0.4); engineSound.play(); } else { console.warn("INTRO_ENDED: Engine not ready."); } } }; introSound.play(); console.log("START_GAME: introSound.play() called."); } catch (audioError) { console.error("START_GAME: Error playing intro:", audioError); gameState = 'ready'; } } else { if (!isInitialStart) { console.log("START_GAME: Restart detected, skipping intro."); } else { console.warn("START_GAME: Intro not ready. Starting directly."); } resetGameData(); gameState = 'playing'; if (engineBuffer && engineSound) { console.log("START_GAME (Skip Intro): Starting engine loop..."); if(engineSound.isPlaying) engineSound.stop(); engineSound.setBuffer(engineBuffer); engineSound.setLoop(true); engineSound.setVolume(0.4); engineSound.play(); } else { console.warn("START_GAME (Skip Intro): Engine not ready."); } } if (animationFrameId === null) { animate(); } console.log("START_GAME: Exiting."); }
-
-        // *** resetGameData with Y Offset & Rotation Fix ***
-        function resetGameData() { console.log("Resetting game data..."); trails.clear(); trailMeshes.forEach(mesh => scene.remove(mesh)); trailMeshes = []; if(playerCycle && playerCycle.mesh){playerCycle.gridX=-GRID_SIZE/4; playerCycle.gridZ=0; playerCycle.direction={x:1, z:0}; playerCycle.nextDirection={x:1, z:0}; playerCycle.mesh.position.set(playerCycle.gridX*GRID_CELL_SIZE, CYCLE_Y_OFFSET, playerCycle.gridZ*GRID_CELL_SIZE); /* Apply Y offset */ playerCycle.mesh.rotation.y=-Math.PI/2 + Math.PI; /* Rotation fix */ playerCycle.isAlive=true; playerCycle.timeToNextStep=1/(CYCLE_SPEED/GRID_CELL_SIZE);} if(opponentCycle && opponentCycle.mesh){opponentCycle.gridX=GRID_SIZE/4; opponentCycle.gridZ=0; opponentCycle.direction={x:-1, z:0}; opponentCycle.nextDirection={x:-1, z:0}; opponentCycle.mesh.position.set(opponentCycle.gridX*GRID_CELL_SIZE, CYCLE_Y_OFFSET, opponentCycle.gridZ*GRID_CELL_SIZE); /* Apply Y offset */ opponentCycle.mesh.rotation.y=Math.PI/2 + Math.PI; /* Rotation fix */ opponentCycle.isAlive=true; opponentCycle.timeToNextStep=1/(CYCLE_SPEED/GRID_CELL_SIZE);} /* gameState='playing'; */ timeSinceLastStep=0; console.log("Game data reset complete."); }
+        function resetGameData() { console.log("Resetting game data..."); trails.clear(); trailMeshes.forEach(mesh => scene.remove(mesh)); trailMeshes = []; if(playerCycle && playerCycle.mesh){playerCycle.gridX=-GRID_SIZE/4; playerCycle.gridZ=0; playerCycle.direction={x:1, z:0}; playerCycle.nextDirection={x:1, z:0}; playerCycle.mesh.position.set(playerCycle.gridX*GRID_CELL_SIZE, CYCLE_Y_OFFSET, playerCycle.gridZ*GRID_CELL_SIZE); playerCycle.mesh.rotation.y=-Math.PI/2 + Math.PI; playerCycle.isAlive=true; playerCycle.timeToNextStep=1/(CYCLE_SPEED/GRID_CELL_SIZE);} if(opponentCycle && opponentCycle.mesh){opponentCycle.gridX=GRID_SIZE/4; opponentCycle.gridZ=0; opponentCycle.direction={x:-1, z:0}; opponentCycle.nextDirection={x:-1, z:0}; opponentCycle.mesh.position.set(opponentCycle.gridX*GRID_CELL_SIZE, CYCLE_Y_OFFSET, opponentCycle.gridZ*GRID_CELL_SIZE); opponentCycle.mesh.rotation.y=Math.PI/2 + Math.PI; opponentCycle.isAlive=true; opponentCycle.timeToNextStep=1/(CYCLE_SPEED/GRID_CELL_SIZE);} timeSinceLastStep=0; console.log("Game data reset complete."); }
         function handlePlayerInput() { if(!playerCycle || playerCycle.isAlive === false) return; const dx=playerCycle.nextDirection.x; const dz=playerCycle.nextDirection.z; const cDx=playerCycle.direction.x; const cDz=playerCycle.direction.z; if((dx!==0&&dx===-cDx)||(dz!==0&&dz===-cDz)){ playerCycle.nextDirection.x=cDx; playerCycle.nextDirection.z=cDz;}else{ playerCycle.direction.x=dx; playerCycle.direction.z=dz;} }
         function simpleAI(cycle, deltaTime) { if(!cycle || cycle.isAlive === false) return; const lookAhead = 2; let nextGridX = cycle.gridX + cycle.direction.x * lookAhead; let nextGridZ = cycle.gridZ + cycle.direction.z * lookAhead; let willCollide = checkCollisionAt(nextGridX, nextGridZ); if (willCollide) { const possibleTurns = []; const leftTurn = { x: cycle.direction.z, z: -cycle.direction.x }; if (!checkCollisionAt(cycle.gridX + leftTurn.x, cycle.gridZ + leftTurn.z)) { possibleTurns.push(leftTurn); } const rightTurn = { x: -cycle.direction.z, z: cycle.direction.x }; if (!checkCollisionAt(cycle.gridX + rightTurn.x, cycle.gridZ + rightTurn.z)) { possibleTurns.push(rightTurn); } if (possibleTurns.length > 0) { const chosenTurn = possibleTurns[Math.floor(Math.random() * possibleTurns.length)]; cycle.nextDirection.x = chosenTurn.x; cycle.nextDirection.z = chosenTurn.z; } else { cycle.nextDirection.x = cycle.direction.x; cycle.nextDirection.z = cycle.direction.z; } } else { cycle.nextDirection.x = cycle.direction.x; cycle.nextDirection.z = cycle.direction.z; } cycle.direction.x = cycle.nextDirection.x; cycle.direction.z = cycle.nextDirection.z; }
         function updateCycle(cycle, deltaTime) { if (!cycle || !cycle.isAlive) return; cycle.timeToNextStep -= deltaTime; if (cycle.timeToNextStep <= 0) { const oldGridX = cycle.gridX; const oldGridZ = cycle.gridZ; cycle.gridX += cycle.direction.x; cycle.gridZ += cycle.direction.z; createTrailSegment(oldGridX, oldGridZ, cycle.color); updateCycleVisuals(cycle); if (checkCollisionAt(cycle.gridX, cycle.gridZ)) { console.log(`${cycle.name} collided!`); cycle.isAlive = false; triggerGameOver(cycle.name === playerCycle.name ? opponentCycle.name : playerCycle.name); } cycle.timeToNextStep += 1 / (CYCLE_SPEED / GRID_CELL_SIZE); if (cycle === playerCycle) { handlePlayerInput(); } if (cycle === opponentCycle) { simpleAI(cycle, deltaTime); } } }
-
-        // *** updateCycleVisuals with Y Offset & Rotation Fix ***
-        function updateCycleVisuals(cycle) {
-            if(!cycle || !cycle.mesh) return;
-            cycle.mesh.position.set(cycle.gridX * GRID_CELL_SIZE, CYCLE_Y_OFFSET, cycle.gridZ * GRID_CELL_SIZE); // Apply Y offset
-            let targetRotationY = cycle.mesh.rotation.y;
-            if (cycle.direction.x > 0) targetRotationY = -Math.PI / 2;
-            if (cycle.direction.x < 0) targetRotationY = Math.PI / 2;
-            if (cycle.direction.z > 0) targetRotationY = Math.PI;
-            if (cycle.direction.z < 0) targetRotationY = 0;
-            targetRotationY += Math.PI; /* Rotation fix */
-            cycle.mesh.rotation.y = targetRotationY;
-        }
-
+        function updateCycleVisuals(cycle) { if(!cycle || !cycle.mesh) return; cycle.mesh.position.set(cycle.gridX * GRID_CELL_SIZE, CYCLE_Y_OFFSET, cycle.gridZ * GRID_CELL_SIZE); let targetRotationY = cycle.mesh.rotation.y; if (cycle.direction.x > 0) targetRotationY = -Math.PI / 2; if (cycle.direction.x < 0) targetRotationY = Math.PI / 2; if (cycle.direction.z > 0) targetRotationY = Math.PI; if (cycle.direction.z < 0) targetRotationY = 0; targetRotationY += Math.PI; cycle.mesh.rotation.y = targetRotationY; }
         function checkCollisionAt(gridX, gridZ) { const hG=GRID_SIZE/2; if(gridX>=hG||gridX<-hG||gridZ>=hG||gridZ<-hG)return true; if(trails.has(`${gridX},${gridZ}`))return true; return false; }
         function triggerGameOver(winnerName) { if (gameState === 'gameOver') return; if (gameState !== 'playing' && gameState !== 'introPlaying') return; console.log(`Game Over! Winner: ${winnerName}`); const oldState = gameState; gameState = 'gameOver'; winnerMessage.textContent = `${winnerName} WINS!`; gameOverScreen.style.display = 'block'; mobileControlsUI.style.display = 'none'; volumeControlDiv.style.display = 'none'; if (introSound && introSound.isPlaying) { console.log("Stopping intro sound on game over."); introSound.stop(); introSound.onEnded = null; } if (engineSound.isPlaying) { console.log("Stopping engine sound."); engineSound.stop(); } if (crashSound.isPlaying) { crashSound.stop(); } if (crashBuffer && crashSound) { console.log("Playing crash sound..."); crashSound.setBuffer(crashBuffer); crashSound.setLoop(false); crashSound.setVolume(0.7); crashSound.play(); } else { console.warn("Crash sound buffer/object not ready."); } }
 
